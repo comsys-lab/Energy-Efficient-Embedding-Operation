@@ -1,6 +1,6 @@
 import numpy as np
 
-class Node:
+class Node: # You can think a node as a "cache line", and each cache line contains a memory address.
     def __init__(self, addr=None):
         self.addr = addr  # memory address
         self.next = None  # Next node pointer (if there is no next node, it becomes None)
@@ -12,7 +12,7 @@ class LRUlist:
         
         # Init the linked list with null (number of nodes==cache_way).
         current = self.head
-        for _ in range(0, cache_way):
+        for _ in range(1, cache_way):
             current.next = Node(None)
             current = current.next
 
@@ -37,30 +37,29 @@ class LRUlist:
             current = current.next
             count += 1
         
-        # Tail 노드 삭제 (prev는 tail 앞의 노드)
         if prev and prev.next:
             prev.next = None
 
-    # 리스트에서 특정 값을 찾고, 찾은 노드를 head로 옮기기
-    def search_list(self, value):
+    def search_and_access(self, addr_to_find):
+        # Find the node -> if hit: that node becomes a new head, if miss: replacement.
         current = self.head
         prev = None
 
-        # 노드를 찾는 과정
+        # Searching the node
         while current:
-            if current.addr == value:
-                if prev:  # 노드가 head가 아니라면
-                    prev.next = current.next  # 노드를 리스트에서 제거
-                    current.next = self.head  # 찾은 노드를 head로 이동
-                    self.head = current
-                return True  # 값을 찾았으면 True 반환
+            if current.addr == addr_to_find: # FOUND=Cache hit!
+                if prev:  # if not current==head (if node is a head, then prev==None)
+                    prev.next = current.next  # remove the node from the list
+                    current.next = self.head  # The node becomes a new head
+                    self.head = current # The node becomes a new head
+                return True
             prev = current
             current = current.next
+            
+        return False # Cache miss
 
-        return False  # 값을 찾지 못했으면 False 반환
-
-    # 연결 리스트 출력 (디버깅 용)
     def print_list(self):
+        # This method is for debugging.
         current = self.head
         while current:
             print(current.addr, end=" -> ")
