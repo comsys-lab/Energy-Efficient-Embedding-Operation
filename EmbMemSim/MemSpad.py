@@ -64,11 +64,6 @@ class MemSpad:
     
     def set_spad(self):
         if self.mem_policy == "spad_naive":
-            # # Store the data from the first element of emb_dataset until the on-chip memory becomes full.
-            # emb_dataset_set = list(OrderedDict.fromkeys(torch.cat([torch.cat(inner_list) for inner_list in self.emb_dataset]).tolist()))
-            # on_mem_set = np.array(list(emb_dataset_set)[:self.spad_size], dtype=np.int64)
-            
-            # # Modified...
             on_mem_set = []
             counter = 0
             break_flag = False
@@ -133,19 +128,9 @@ class MemSpad:
             num_hit = 0
             num_miss = 0
             
-            # print("Processing batch {}...".format(nb))
-            # with tqdm(total=len(self.emb_dataset[nb])*len(self.emb_dataset[nb][0]), desc="Processing") as pbar:
-            #     for nt in range(len(self.emb_dataset[nb])):
-            #         for vec in range(len(self.emb_dataset[nb][nt])):
-            #             if self.emb_dataset[nb][nt][vec] in self.on_mem:
-            #             # if np.isin(self.emb_dataset[nb][nt][vec], self.on_mem):
-            #                 num_hit = num_hit + 1
-            #             else:
-            #                 num_miss = num_miss + 1
-            #             pbar.update(1)
             with tqdm(total=len(self.emb_dataset[nb]), desc="Processing") as pbar:
                 for nt in range(len(self.emb_dataset[nb])):                           
-                    hit_mask = np.isin(self.emb_dataset[nb][nt], self.on_mem)  # hit_mask는 table_data와 self.on_mem 간의 Boolean 배열
+                    hit_mask = np.isin(self.emb_dataset[nb][nt], self.on_mem)  # hit_mask is a boolean array between table_data and self.on_mem
                     num_hit += np.sum(hit_mask) 
                     num_miss += np.sum(~hit_mask)
                     

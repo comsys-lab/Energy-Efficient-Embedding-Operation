@@ -16,7 +16,7 @@ dataset_list=("reuse_medium/table_1M.txt")
 
 MEM_CFG=$1 # spad_naive
 
-EMBS='128,1000000,250,150' # EMBS= emb_dim, rows/table, num_tables, pooling_factor 128, 1000000, 170, 180
+EMBS='128,1000000,10,150' # EMBS= emb_dim, rows/table, num_tables, pooling_factor 128, 1000000, 170, 180
 NUM_BATCH=1 #8 batches are used for warmup and not accounted in the average ET.
 BS=128 # 128
 
