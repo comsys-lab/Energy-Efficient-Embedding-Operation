@@ -6,4 +6,6 @@ Currently, the simulator supports a two-level memory hierarchy, which consists o
 The simulator takes an embedding table access trace, workload configuration, and memory configuration as input, then outputs the on-chip and off-chip memory access counts, as well as the on-chip memory access ratio.
 The figure below shows an overview of ETASim.
 
+<img src="EmbMemSim/figures/sim_overview.png" width="700"/>
+
 We implement the simulation running script and request generator module based on the prior work [Jain et al., MICRO 2024].
