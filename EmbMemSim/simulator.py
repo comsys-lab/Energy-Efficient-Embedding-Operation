@@ -6,7 +6,7 @@ import argparse
 import sys
 import numpy as np
 
-## Assisting the args parser
+## Credit: Original code from Rishabh; Assisting the args parser
 def dash_separated_ints(value):
     vals = value.split("-")
     for val in vals:
@@ -19,7 +19,7 @@ def dash_separated_ints(value):
 
     return value
 
-## Rishabh: helper function
+## Credit: Original code from Rishabh
 def print_general_config(nbatches, bsz, table_config, emb_dim, lookups_per_sample, fname):
     emb_config = np.fromstring(table_config, dtype=int, sep="-")
     emb_config = np.asarray(emb_config, dtype=np.int32)

@@ -36,8 +36,9 @@ class MemSpad:
         self.emb_dataset = emb_dataset # emb_dataset[numbatch][table][batchsz*lookuppersample]
         self.num_tables = len(self.emb_dataset[0])
         self.vectors_per_table = vectors_per_table
+        self.elem_per_vector = int(self.emb_dim / self.mem_gran)
         
-        self.spad_size = int(self.mem_size / self.emb_dim * (self.emb_dim / self.mem_gran))
+        self.spad_size = int(self.mem_size / self.emb_dim * self.elem_per_vector)
         
     def set_policy(self, policy):
         if (self.mem_type == "spad" and not policy.startswith("spad_")):
@@ -73,7 +74,7 @@ class MemSpad:
             with tqdm(total=self.spad_size, desc="Setting spad") as pbar:
                 for t_i in range(self.num_tables):
                     for v_i in range(self.vectors_per_table):
-                        for d_i in range(int(self.emb_dim / self.mem_gran)):
+                        for d_i in range(self.elem_per_vector):
                             tbl_bits = t_i << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
                             vec_idx = v_i << int(np.log2(self.emb_dim))
                             dim_bits = self.mem_gran * d_i
@@ -95,7 +96,8 @@ class MemSpad:
             # Randomly store the data from the available address space until the on-chip memory becomes full.            
             avail_space = list(itertools.product(range(self.num_tables), range(self.vectors_per_table)))
             random.shuffle(avail_space)
-            avail_space = avail_space[:self.spad_size]
+            # avail_space = avail_space[:self.spad_size]
+            avail_space = avail_space[:int(self.spad_size/self.elem_per_vector)]
             with tqdm(total=self.spad_size, desc="Setting spad") as pbar:
                 for pair in avail_space:
                     # address generation
@@ -145,9 +147,6 @@ class MemSpad:
                         # self.on_mem = self.set_spad()
                     
                     pbar.update(1)
-            # if self.mem_policy == "spad_oracle": # batch granularity
-            #     self.batch_counter = min(self.batch_counter + 1, len(self.emb_dataset)-1)
-                # self.on_mem = self.set_spad()
             
             self.access_results.append([num_hit, num_miss]) # add the results for each batch
             

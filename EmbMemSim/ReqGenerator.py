@@ -109,18 +109,6 @@ class ReqGenerator:
             for _ in range(self.nbatches)
         ]
         
-        # self.addr_trace = [[] for _ in range(self.nbatches)]
-        # for i in range(len(self.addr_trace)):
-        #     self.addr_trace[i] = [[] for _ in range(len(self.lS_i[0]))]
-        
-        # for i in range(self.nbatches): # self.addr_trace[nb]
-        #     self.addr_trace.append([])
-        #     for j in range(len(self.lS_i[0])): # self.addr_trace[nb][nt]
-        #         self.addr_trace[i].append(np.zeros(int(len(self.lS_i[0][0]) * self.emb_dim / self.mem_gran), dtype=np.int64))
-        # self.addr_trace = np.zeros((self.nbatches, len(self.lS_i[0]), int(len(self.lS_i[0][0]) * self.emb_dim / self.mem_gran)), dtype=np.int64) # self.addr_trace.shape = [numbatch][numtable][batchsz*lookuppersample*embdim/accessgran]
-        # print("num tbl: {}".format(len(self.lS_i[0])))
-        # exit()
-        
         # convert indices in self.lS_i to memory address...
         ln_emb = np.fromstring(self.embsize, dtype=int, sep="-")
         ln_emb = np.asarray(ln_emb, dtype=np.int32)
