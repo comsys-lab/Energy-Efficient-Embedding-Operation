@@ -8,4 +8,4 @@ The figure below shows an overview of ETASim.
 
 <img src="EmbMemSim/figures/sim_overview.png" width="700"/>
 
-We implement the simulation running script and request generator module based on the prior work [Jain et al., MICRO 2024].
+We implement the simulation running script and request generator module based on the prior work [Jain et al., ISCA 2023] [Jain et al., MICRO 2024].
