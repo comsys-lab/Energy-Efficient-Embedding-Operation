@@ -141,6 +141,7 @@ class MemCache:
                         for vec in range(len(self.emb_dataset[nb][nt])):
                             this_tag = self.get_tag_bits(self.emb_dataset[nb][nt][vec])
                             this_index = self.get_index_bits(self.emb_dataset[nb][nt][vec])
+                            print("[DEBUG] this_addr:{}   this_index:{}   this_tag: {}".format(self.emb_dataset[nb][nt][vec], this_index, this_tag))
                             if self.on_mem[this_index].search_and_access(this_tag): # tag matching
                                 num_hit = num_hit + 1
                             else:

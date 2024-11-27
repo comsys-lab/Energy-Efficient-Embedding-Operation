@@ -19,13 +19,14 @@ def dash_separated_ints(value):
     return value
 
 class ReqGenerator:
-    def __init__(self, nbatches, embsize, emb_dim, bsz, fname, num_indices_per_lookup):
+    def __init__(self, nbatches, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran):
         self.dataset_gen = None
         # sparse feature (sparse indices)
         self.lS_emb_offsets = []
         self.lS_emb_indices = []
         self.lS_o = []
         self.lS_i = []
+        self.addr_trace = []
         
         self.nbatches = 0
         self.embsize = 0
@@ -34,15 +35,18 @@ class ReqGenerator:
         self.fname = ""
         self.num_indices_per_lookup = 0
         
-        self.set_params(nbatches, embsize, emb_dim, bsz, fname, num_indices_per_lookup)
+        self.mem_gran = 0
         
-    def set_params(self, nbatches, embsize, emb_dim, bsz, fname, num_indices_per_lookup):
+        self.set_params(nbatches, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran)
+        
+    def set_params(self, nbatches, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran):
         self.nbatches = nbatches
         self.embsize = embsize
         self.emb_dim = emb_dim
         self.bsz = bsz
         self.fname = fname
         self.num_indices_per_lookup = num_indices_per_lookup
+        self.mem_gran = mem_gran
         
     def open_gen(self, name, rows):
         with open(name) as f:
@@ -97,21 +101,45 @@ class ReqGenerator:
             self.lS_i.append(self.lS_emb_indices)
             
     def index_to_addr(self):
+        # init addr_trace array
+        self.addr_trace = [
+            [np.ones(int(len(self.lS_i[0][0]) * self.emb_dim / self.mem_gran), 
+                     dtype=np.int64) 
+             for _ in range(len(self.lS_i[0]))] 
+            for _ in range(self.nbatches)
+        ]
+        
+        # self.addr_trace = [[] for _ in range(self.nbatches)]
+        # for i in range(len(self.addr_trace)):
+        #     self.addr_trace[i] = [[] for _ in range(len(self.lS_i[0]))]
+        
+        # for i in range(self.nbatches): # self.addr_trace[nb]
+        #     self.addr_trace.append([])
+        #     for j in range(len(self.lS_i[0])): # self.addr_trace[nb][nt]
+        #         self.addr_trace[i].append(np.zeros(int(len(self.lS_i[0][0]) * self.emb_dim / self.mem_gran), dtype=np.int64))
+        # self.addr_trace = np.zeros((self.nbatches, len(self.lS_i[0]), int(len(self.lS_i[0][0]) * self.emb_dim / self.mem_gran)), dtype=np.int64) # self.addr_trace.shape = [numbatch][numtable][batchsz*lookuppersample*embdim/accessgran]
+        # print("num tbl: {}".format(len(self.lS_i[0])))
+        # exit()
+        
         # convert indices in self.lS_i to memory address...
         ln_emb = np.fromstring(self.embsize, dtype=int, sep="-")
         ln_emb = np.asarray(ln_emb, dtype=np.int32)
         rows_per_table = ln_emb[0]
         for nb in range(len(self.lS_i)): # recall that self.lS_i[numbatch][table][batchsz*lookuppersample]
             print("Processing batch {}...".format(nb))
-            with tqdm(total=len(self.lS_i[nb])*len(self.lS_i[nb][0]), desc="Processing") as pbar:
+            with tqdm(total=len(self.lS_i[nb])*len(self.lS_i[nb][0])*int(self.emb_dim / self.mem_gran), desc="Processing") as pbar:
                 for nt in range(len(self.lS_i[nb])):
                     for vec in range(len(self.lS_i[nb][nt])):
-                        tbl_bits = nt << int(np.log2(rows_per_table) + np.log2(self.emb_dim))
-                        vec_idx = self.lS_i[nb][nt][vec] << int(np.log2(self.emb_dim))
-                        this_addr = tbl_bits + vec_idx
-                        self.lS_i[nb][nt][vec] = this_addr
+                        for dim in range(int(self.emb_dim / self.mem_gran)):
+                            tbl_bits = nt << int(np.log2(rows_per_table) + np.log2(self.emb_dim))
+                            vec_idx = self.lS_i[nb][nt][vec] << int(np.log2(self.emb_dim))
+                            dim_bits = self.mem_gran * dim
+                            this_addr = tbl_bits + vec_idx + dim_bits
+                            # self.lS_i[nb][nt][vec] = this_addr
+                            self.addr_trace[nb][nt][vec * int(self.emb_dim / self.mem_gran) + dim] = this_addr
+                            # print(this_addr)
                         
-                        pbar.update(1)
+                            pbar.update(1)
 
 if __name__ == "__main__":
     reqgen = ReqGenerator()

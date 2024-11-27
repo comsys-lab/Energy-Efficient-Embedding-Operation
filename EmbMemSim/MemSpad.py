@@ -7,9 +7,10 @@ from collections import OrderedDict, Counter
 from tqdm import tqdm
 
 class MemSpad:
-    def __init__(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_tables):
+    def __init__(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran):
         self.mem_size = 0 # KB
         self.mem_type = "init"
+        self.mem_gran = 0
         self.on_mem = np.ones(1)
         self.spad_size = 0
         self.batch_counter = 0 # this is only for spad_oracle
@@ -19,23 +20,24 @@ class MemSpad:
         self.emb_dim = 0 # this is for spad
         self.emb_dataset = np.ones(1)
         self.num_tables = 0
-        self.vectors_per_tables = 0
+        self.vectors_per_table = 0
         
         self.access_results = []
                
-        self.set_params(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_tables)
+        self.set_params(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran)
         
-    def set_params(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_tables):
+    def set_params(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran):
         self.mem_size = mem_size * 1024 # KB -> Byte
         self.mem_type = mem_type # spad or cache
+        self.mem_gran = mem_gran
                 
         # below configs are related to the dataset
         self.emb_dim = emb_dim # this is for spad
         self.emb_dataset = emb_dataset # emb_dataset[numbatch][table][batchsz*lookuppersample]
         self.num_tables = len(self.emb_dataset[0])
-        self.vectors_per_tables = vectors_per_tables
+        self.vectors_per_table = vectors_per_table
         
-        self.spad_size = int(self.mem_size / self.emb_dim)
+        self.spad_size = int(self.mem_size / self.emb_dim * (self.emb_dim / self.mem_gran))
         
     def set_policy(self, policy):
         if (self.mem_type == "spad" and not policy.startswith("spad_")):
@@ -71,15 +73,19 @@ class MemSpad:
             with tqdm(total=self.spad_size, desc="Setting spad") as pbar:
                 for t_i in range(self.num_tables):
                     for v_i in range(self.vectors_per_table):
-                        tbl_bits = t_i << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
-                        vec_idx = v_i << int(np.log2(self.emb_dim))
-                        this_addr = tbl_bits + vec_idx
-                        on_mem_set.append(this_addr)
-                        counter = counter + 1
-                        if counter==self.spad_size:
-                            break_flag = True
+                        for d_i in range(int(self.emb_dim / self.mem_gran)):
+                            tbl_bits = t_i << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
+                            vec_idx = v_i << int(np.log2(self.emb_dim))
+                            dim_bits = self.mem_gran * d_i
+                            this_addr = tbl_bits + vec_idx + dim_bits
+                            on_mem_set.append(this_addr)
+                            counter = counter + 1
+                            if counter==self.spad_size:
+                                break_flag = True
+                                break
+                            pbar.update(1)
+                        if break_flag:
                             break
-                        pbar.update(1)
                     if break_flag:
                         break
             on_mem_set = np.asarray(on_mem_set, dtype=np.int64)
