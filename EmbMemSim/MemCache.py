@@ -230,11 +230,12 @@ class MemCache:
         print("* Simulation Results *")
         print("**********************")
         print("Total hit ratio: {:.4f}".format(total_hit_ratio))
+        print("Total accesses: {}".format(total_hits+total_miss))
         print("Total hits: {}".format(total_hits))
         print("Total misses: {}".format(total_miss))
         print("----------------------------------------")
         print("Per batch results")
         for i in range(len(self.access_results)):
             batch_hit_ratio = self.access_results[i][0] / (self.access_results[i][0] + self.access_results[i][1])
-            print("[Batch {}] hit ratio: {:.4f}   hits: {}   misses: {}".format(i, batch_hit_ratio, self.access_results[i][0], self.access_results[i][1]))
+            print("[Batch {}] hit ratio: {:.4f}   accesses: {}   hits: {}   misses: {}".format(i, batch_hit_ratio, self.access_results[i][0]+self.access_results[i][1], self.access_results[i][0], self.access_results[i][1]))
         print("**********************")
