@@ -100,12 +100,14 @@ class MemSpad:
             avail_space = avail_space[:int(self.spad_size/self.elem_per_vector)]
             with tqdm(total=self.spad_size, desc="Setting spad") as pbar:
                 for pair in avail_space:
-                    # address generation
-                    tbl_bits = pair[0] << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
-                    vec_idx = pair[1] << int(np.log2(self.emb_dim))
-                    this_addr = tbl_bits + vec_idx
-                    on_mem_set.append(this_addr)
-                    pbar.update(1)
+                    for d_i in range(self.elem_per_vector):
+                        # address generation
+                        tbl_bits = pair[0] << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
+                        vec_idx = pair[1] << int(np.log2(self.emb_dim))
+                        dim_bits = self.mem_gran * d_i
+                        this_addr = tbl_bits + vec_idx + dim_bits
+                        on_mem_set.append(this_addr)
+                        pbar.update(1)
             on_mem_set = np.asarray(on_mem_set, dtype=np.int64)
         
         elif self.mem_policy == "spad_oracle":
@@ -167,11 +169,12 @@ class MemSpad:
         print("* Simulation Results *")
         print("**********************")
         print("Total hit ratio: {:.4f}".format(total_hit_ratio))
+        print("Total accesses: {}".format(total_hits+total_miss))
         print("Total hits: {}".format(total_hits))
         print("Total misses: {}".format(total_miss))
         print("----------------------------------------")
         print("Per batch results")
         for i in range(len(self.access_results)):
             batch_hit_ratio = self.access_results[i][0] / (self.access_results[i][0] + self.access_results[i][1])
-            print("[Batch {}] hit ratio: {:.4f}   hits: {}   misses: {}".format(i, batch_hit_ratio, self.access_results[i][0], self.access_results[i][1]))
+            print("[Batch {}] hit ratio: {:.4f}   accesses: {}   hits: {}   misses: {}".format(i, batch_hit_ratio, self.access_results[i][0]+self.access_results[i][1], self.access_results[i][0], self.access_results[i][1]))
         print("**********************")
