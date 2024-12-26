@@ -6,7 +6,7 @@ import random
 from collections import OrderedDict, Counter
 from tqdm import tqdm
 
-class MemSpad:
+class MemProfile:
     def __init__(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran):
         self.mem_size = 0 ### KB
         self.mem_type = "init"
