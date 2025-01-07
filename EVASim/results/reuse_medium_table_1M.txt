@@ -1,0 +1,66 @@
+
+************************************
+* General Simulation Configuration *
+************************************
+Dataset: /home/choi/2nd/EmbMemSim/datasets/reuse_medium/table_1M.txt
+Num batches: 10
+Num tables: 17
+Batch Size (samples per batch): 128
+Vectors per table: 1000000
+Lookups per sample: 180
+Embedding Dimension 128
+************************************
+(Time elapsed(s) in model and data gen:   0.600272sec)
+Processing batch 0...
+Processing batch 1...
+Processing batch 2...
+Processing batch 3...
+Processing batch 4...
+Processing batch 5...
+Processing batch 6...
+Processing batch 7...
+Processing batch 8...
+Processing batch 9...
+(Time elapsed(s) in model and data gen:  66.607833sec)
+
+********************************
+* On-Chip Memory Configuration *
+********************************
+Memory size: 134217728 B (128 MB)
+Memory type: spad
+Memory policy: spad_naive
+********************************
+on mem data structure size: 8192.11 KB
+(Time elapsed(s) in create memory structure:   3.773146sec)
+Processing batch 0...
+Processing batch 1...
+Processing batch 2...
+Processing batch 3...
+Processing batch 4...
+Processing batch 5...
+Processing batch 6...
+Processing batch 7...
+Processing batch 8...
+Processing batch 9...
+Simulation Done
+
+**********************
+* Simulation Results *
+**********************
+Total hit ratio: 0.0866
+Total hits: 1864914
+Total misses: 19677486
+----------------------------------------
+Per batch results
+[Batch 0] hit ratio: 0.0859   hits: 33629   misses: 358051
+[Batch 1] hit ratio: 0.0863   hits: 67632   misses: 715728
+[Batch 2] hit ratio: 0.0867   hits: 101828   misses: 1073212
+[Batch 3] hit ratio: 0.0865   hits: 135492   misses: 1431228
+[Batch 4] hit ratio: 0.0865   hits: 169449   misses: 1788951
+[Batch 5] hit ratio: 0.0865   hits: 203227   misses: 2146853
+[Batch 6] hit ratio: 0.0865   hits: 237279   misses: 2504481
+[Batch 7] hit ratio: 0.0866   hits: 271418   misses: 2862022
+[Batch 8] hit ratio: 0.0867   hits: 305453   misses: 3219667
+[Batch 9] hit ratio: 0.0867   hits: 339507   misses: 3577293
+**********************
+(Time elapsed(s) in do simulation: 454.274352sec)

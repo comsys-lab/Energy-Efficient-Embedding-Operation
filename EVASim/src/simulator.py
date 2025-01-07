@@ -5,6 +5,7 @@ from MemCache import MemCache
 import argparse
 import sys
 import numpy as np
+import os
 
 ## Credit: Original code from Rishabh; Assisting the args parser
 def dash_separated_ints(value):
@@ -48,7 +49,7 @@ if __name__ == "__main__":
     parser.add_argument("--arch-embedding-size", type=dash_separated_ints, default="500000-500000-500000-500000-500000-500000-500000-500000-500000-500000-500000-500000")
 
     # execution and dataset related parameters
-    parser.add_argument("--data-generation", type=str, default="/home/choi/2nd/EmbMemSim/datasets/reuse_high/table_1M.txt")
+    parser.add_argument("--data-generation", type=str, default="./EVASim/datasets/reuse_high/table_1M.txt")
     parser.add_argument("--num-batches", type=int, default=1)
     parser.add_argument("--output-name", type=int, default=0)
     parser.add_argument("--batch-size", type=int, default=1024)
@@ -66,10 +67,11 @@ if __name__ == "__main__":
     bsz = args.batch_size # batch size
     fname = args.data_generation
     num_indices_per_lookup = args.lookups_per_sample # pooling factor or lookups per sample
-    
-    # Parse the memory config file and set the variables
-    mem_config_dir = '/home/choi/2nd/EmbMemSim/configs/'
-    mem_config_path = mem_config_dir+mem_config_file+'.config'
+    # Parse the memory config file
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    mem_config_path = os.path.join(os.path.dirname(os.path.dirname(script_dir)), 
+                                  'EVASim', 'configs', 
+                                  f'{mem_config_file}.config')
     
     mem_type = None
     cache_way = 0

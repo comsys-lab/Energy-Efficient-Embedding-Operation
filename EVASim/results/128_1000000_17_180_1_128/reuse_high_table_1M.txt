@@ -1,0 +1,39 @@
+
+************************************
+* General Simulation Configuration *
+************************************
+Dataset: /home/choi/2nd/EmbMemSim/datasets/reuse_high/table_1M.txt
+Num batches: 1
+Num tables: 17
+Batch Size (samples per batch): 128
+Vectors per table: 1000000
+Lookups per sample: 180
+Embedding Dimension 128
+************************************
+(Time elapsed(s) in model and data gen:   0.933874sec)
+Processing batch 0...
+(Time elapsed(s) in model and data gen:   6.707422sec)
+
+********************************
+* On-Chip Memory Configuration *
+********************************
+Memory size: 134217728 B (128 MB)
+Memory type: spad
+Memory policy: spad_naive
+********************************
+on mem data structure size: 8192.11 KB
+(Time elapsed(s) in create memory structure:   3.743892sec)
+Processing batch 0...
+Simulation Done
+
+**********************
+* Simulation Results *
+**********************
+Total hit ratio: 0.0868
+Total hits: 34001
+Total misses: 357679
+----------------------------------------
+Per batch results
+[Batch 0] hit ratio: 0.0868   hits: 34001   misses: 357679
+**********************
+(Time elapsed(s) in do simulation:  53.208067sec)
