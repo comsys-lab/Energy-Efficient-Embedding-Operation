@@ -10,7 +10,9 @@
 This repository contains an artifact for "Efficient Embedding Vector Operation (TBD)" paper, which aims to enhance the energy efficiency of hardware accelerators for various embedding vector operations.
 The figure below represents the organization of this repository.
 
-<img src="github_figures/github_tree.svg" width="500"/>
+<p align="center">
+    <img src="github_figures/github_tree.svg" width="600"/>
+</p>
 
 - `representative_figures` directory contains the representative figures shown in the paper. You can check the intended results using those figures.
 
@@ -26,8 +28,9 @@ We design this simulator to evaluate how efficiently the on-chip memory system c
 Currently, the simulator supports a two-level memory hierarchy, which consists of the on-chip memory system (e.g., scratchpad memory or cache), and off-chip memory system (e.g., DRAM, HBM).
 The simulator takes an embedding vector access trace, workload configuration, and memory configuration as input, then outputs the on-chip and off-chip memory access counts, as well as the on-chip memory access ratio.
 The figure below shows an overview of EVASim.
-
-<img src="github_figures/sim_overview.svg" width="700"/>
+<p align="center">
+    <img src="github_figures/sim_overview.svg" width="700"/>
+</p>  
 
 We implement the simulation running script and request generator module based on the prior work [Jain et al., ISCA 2023] [Jain et al., MICRO 2024].
 
