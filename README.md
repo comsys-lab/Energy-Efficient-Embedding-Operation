@@ -8,7 +8,7 @@
 
 ## Introduction
 This repository contains an artifact for "Efficient Embedding Vector Operation (TBD)" paper, which aims to enhance the energy efficiency of hardware accelerators for various embedding vector operations.
-The figure below represents the organization of this repository.
+The figure below represents the organization of this repository.   
 
 <p align="center">
     <img src="github_figures/github_tree.svg" width="600"/>
