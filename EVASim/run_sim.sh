@@ -1,34 +1,40 @@
 #!/bin/bash
 # Original code: https://github.com/rishucoding/reproduce_MICRO24_GPU_DLRM_inference
 
-###################
-
-# OUT="results_test" # "results_ed_r_nt_lk_nb_bs"
-OUT="results_ed_r_nt_lk_nb_bs" # "results_ed_r_nt_lk_nb_bs"
-data_path_dir="$(pwd)/datasets/"
-
-###################
-
+### outdir ### 
+OUT="results_ed_r_nt_lk_nb_bs"
 mkdir -p $OUT
-PyGenTbl='import sys; rows,tables=sys.argv[1:3]; print("-".join([rows]*int(tables)))'
+##############
+
+### dataset ###
+data_path_dir="$(pwd)/datasets/"
 # dataset_list=("reuse_high/table_1M.txt" "reuse_medium/table_1M.txt" "reuse_low/table_1M.txt")
 dataset_list=("reuse_medium/table_1M.txt")
+###############
 
+### simulation parameters ###
 MEM_CFG=$1 # spad_naive
+EMB_DIM=256
+EMB_ROW=1000000
+EMB_TBL=512
+EMB_POOL=170
+EMBS="$EMB_DIM,$EMB_ROW,$EMB_TBL,$EMB_POOL"
 
-EMBS='128,1000000,250,150' # EMBS= emb_dim, rows/table, num_tables, pooling_factor 128, 1000000, 170, 180
-NUM_BATCH=1 #8 batches are used for warmup and not accounted in the average ET.
-BS=128 # 128
+NUM_BATCH=1
+BS=1
+##############################
 
+### others ###
+PyGenTbl='import sys; rows,tables=sys.argv[1:3]; print("-".join([rows]*int(tables)))'
 OUTDIR="$(echo "$EMBS" | sed 's/,/_/g')"
 echo $OUTDIR
 OUTDIR="${OUT}/${OUTDIR}_${NUM_BATCH}_${BS}"
 echo $OUTDIR
 mkdir -p $OUTDIR
+##############
 
 for dataset in "${dataset_list[@]}"; do
     DATA_GEN_PATH=$data_path_dir$dataset
-    # OUTFILE="$OUT$dataset"
     OUTFILE=$(echo "$dataset" | sed 's/\//_/g')
     OUTFILE="$OUTDIR/$OUTFILE"
     for e in $EMBS; do

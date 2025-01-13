@@ -3,7 +3,7 @@ import time
 import torch
 from tqdm import tqdm
 
-## Original code: https://github.com/rishucoding/reproduce_MICRO24_GPU_DLRM_inference by RJ
+## We implement this module based on this code: https://github.com/rishucoding/reproduce_MICRO24_GPU_DLRM_inference by RJ
 
 ## Assisting the args parser
 def dash_separated_ints(value):
@@ -19,7 +19,7 @@ def dash_separated_ints(value):
     return value
 
 class ReqGenerator:
-    def __init__(self, nbatches, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran):
+    def __init__(self, nbatches, n_format, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran):
         self.dataset_gen = None
         # sparse feature (sparse indices)
         self.lS_emb_offsets = []
@@ -29,6 +29,7 @@ class ReqGenerator:
         self.addr_trace = []
         
         self.nbatches = 0
+        self.n_format = 0
         self.embsize = 0
         self.emb_dim = 0
         self.bsz = 0
@@ -37,10 +38,11 @@ class ReqGenerator:
         
         self.mem_gran = 0
         
-        self.set_params(nbatches, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran)
+        self.set_params(nbatches, n_format, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran)
         
-    def set_params(self, nbatches, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran):
+    def set_params(self, nbatches, n_format, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran):
         self.nbatches = nbatches
+        self.n_format = n_format # numeric format bits -> bytes
         self.embsize = embsize
         self.emb_dim = emb_dim
         self.bsz = bsz
@@ -83,8 +85,6 @@ class ReqGenerator:
                 lS_batch_indices += [x for _, x in zip(range(sparse_group_size), cur_gen)]
                 # update offset for next iteration
                 offset += sparse_group_size
-            # self.lS_emb_offsets.append(torch.tensor(lS_batch_offsets, dtype=torch.int64))
-            # self.lS_emb_indices.append(torch.tensor(lS_batch_indices, dtype=torch.int64))
             self.lS_emb_offsets.append(np.array(lS_batch_offsets, dtype=np.int64))
             self.lS_emb_indices.append(np.array(lS_batch_indices, dtype=np.int64))
 
@@ -103,18 +103,19 @@ class ReqGenerator:
     def index_to_addr(self):
         # init addr_trace array
         self.addr_trace = [
-            [np.ones(int(len(self.lS_i[0][0]) * self.emb_dim / self.mem_gran), 
+            [np.ones(int(len(self.lS_i[0][0]) * self.emb_dim * self.n_format / self.mem_gran), 
                      dtype=np.int64) 
              for _ in range(len(self.lS_i[0]))] 
             for _ in range(self.nbatches)
         ]
+        print("[DEBUG] addr_trace shape: {}".format(np.array(self.addr_trace).shape))
         
         # convert indices in self.lS_i to memory address...
         ln_emb = np.fromstring(self.embsize, dtype=int, sep="-")
         ln_emb = np.asarray(ln_emb, dtype=np.int32)
         rows_per_table = ln_emb[0]
         for nb in range(len(self.lS_i)): # recall that self.lS_i[numbatch][table][batchsz*lookuppersample]
-            print("Processing batch {}...".format(nb))
+            print("Converting vector indices into virtual memory addresses for batch {}...".format(nb))
             with tqdm(total=len(self.lS_i[nb])*len(self.lS_i[nb][0])*int(self.emb_dim / self.mem_gran), desc="Processing") as pbar:
                 for nt in range(len(self.lS_i[nb])):
                     for vec in range(len(self.lS_i[nb][nt])):
@@ -123,8 +124,18 @@ class ReqGenerator:
                             vec_idx = self.lS_i[nb][nt][vec] << int(np.log2(self.emb_dim))
                             dim_bits = self.mem_gran * dim
                             this_addr = tbl_bits + vec_idx + dim_bits
-                            # self.lS_i[nb][nt][vec] = this_addr
-                            self.addr_trace[nb][nt][vec * int(self.emb_dim / self.mem_gran) + dim] = this_addr
+                            
+                            # numeric format bits-related
+                            n_format_offset_bits = int(np.log2(self.n_format))
+                            if n_format_offset_bits > 0:
+                                this_addr_base = this_addr << n_format_offset_bits
+                                for i in range(self.n_format):
+                                    this_addr = this_addr_base + i
+                                    self.addr_trace[nb][nt][vec * int(self.emb_dim * self.n_format / self.mem_gran) + dim + i] = this_addr
+                                    # print(this_addr)
+                                    # print(bin(this_addr))
+                            else:
+                                self.addr_trace[nb][nt][vec * int(self.emb_dim * self.n_format / self.mem_gran) + dim] = this_addr
                             # print(this_addr)
                         
                             pbar.update(1)

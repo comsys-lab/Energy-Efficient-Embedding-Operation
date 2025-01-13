@@ -21,13 +21,14 @@ def dash_separated_ints(value):
     return value
 
 ## Credit: Original code from Rishabh
-def print_general_config(nbatches, bsz, table_config, emb_dim, lookups_per_sample, fname):
+def print_general_config(nbatches, n_format, bsz, table_config, emb_dim, lookups_per_sample, fname):
     emb_config = np.fromstring(table_config, dtype=int, sep="-")
     emb_config = np.asarray(emb_config, dtype=np.int32)
     print("\n************************************")
     print("* General Simulation Configuration *")
     print("************************************")
     print("Dataset: {}".format(fname))
+    print("Numeric format: {} bits".format(str(n_format*8)))
     print("Num batches: {}".format(str(nbatches)))
     print("Num tables: {}".format(str(len(emb_config))))
     print("Batch Size (samples per batch): {}".format(str(bsz)))
@@ -43,24 +44,27 @@ if __name__ == "__main__":
     ### parse arguments ###
     #######################
     
-    parser = argparse.ArgumentParser(description="ETAsim")
+    parser = argparse.ArgumentParser(description="EVASim")
+    # memory config
+    parser.add_argument("--memory-config", type=str, default="spad_naive")
+    
     # emb related parameters
     parser.add_argument("--arch-sparse-feature-size", type=int, default=128)
     parser.add_argument("--arch-embedding-size", type=dash_separated_ints, default="500000-500000-500000-500000-500000-500000-500000-500000-500000-500000-500000-500000")
 
     # execution and dataset related parameters
     parser.add_argument("--data-generation", type=str, default="./EVASim/datasets/reuse_high/table_1M.txt")
+    parser.add_argument("--numeric-format-bits", type=int, default=8)
     parser.add_argument("--num-batches", type=int, default=1)
     parser.add_argument("--output-name", type=int, default=0)
     parser.add_argument("--batch-size", type=int, default=1024)
     parser.add_argument("--lookups-per-sample", type=int, default=150)
     
-    # memory config
-    parser.add_argument("--memory-config", type=str, default="spad_naive")
-    
     # argparses
     args = parser.parse_args()
     mem_config_file = args.memory_config
+    n_format_bits = args.numeric_format_bits
+    n_format = int(np.ceil(n_format_bits / 8))
     nbatches = args.num_batches
     embsize = args.arch_embedding_size
     emb_dim = args.arch_sparse_feature_size #embedding dim
@@ -110,16 +114,11 @@ if __name__ == "__main__":
     ################################
     
     helper.set_timer()
-    reqgen = ReqGenerator(nbatches, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran)
+    reqgen = ReqGenerator(nbatches, n_format, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran)
     reqgen.data_gen()
     
-    print_general_config(reqgen.nbatches, reqgen.bsz, reqgen.embsize, reqgen.emb_dim, reqgen.num_indices_per_lookup, reqgen.fname)
-    
-    # print("len(reqgen.lS_i): {}".format(len(reqgen.lS_i[0][0]))) # reqgen.lS_i[numbatch][table][batchsz*lookuppersample]
-    # print("reqgen.lS_i[0][0]: {}".format(reqgen.lS_i[0][0]))
-    # print("reqgen.lS_i[1][0]: {}".format(reqgen.lS_i[1][0]))
-    # print("reqgen.lS_i[5][0]: {}".format(reqgen.lS_i[5][0]))
-    # print("reqgen.lS_i[0][0].shape: {}".format(reqgen.lS_i[0][0].shape))
+    print_general_config(reqgen.nbatches, reqgen.n_format, reqgen.bsz, reqgen.embsize, reqgen.emb_dim, reqgen.num_indices_per_lookup, reqgen.fname)
+
     helper.end_timer("model and data gen")
     
     #-------------------------------------------------------------------
