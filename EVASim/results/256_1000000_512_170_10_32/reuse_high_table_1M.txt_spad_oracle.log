@@ -1,0 +1,76 @@
+
+************************************
+* General Simulation Configuration *
+************************************
+Dataset: /workspace/EVASim/datasets/reuse_high/table_1M.txt
+Numeric format: 8 bits
+Num batches: 10
+Num tables: 512
+Batch Size (samples per batch): 32
+Vectors per table: 1000000
+Lookups per sample: 170
+Embedding Dimension 256
+************************************
+(Time elapsed(s) in model and data gen:   2.198911sec)
+[DEBUG] addr_trace shape: (10, 512, 10880)
+Converting vector indices into virtual memory addresses for batch 0...
+Converting vector indices into virtual memory addresses for batch 1...
+Converting vector indices into virtual memory addresses for batch 2...
+Converting vector indices into virtual memory addresses for batch 3...
+Converting vector indices into virtual memory addresses for batch 4...
+Converting vector indices into virtual memory addresses for batch 5...
+Converting vector indices into virtual memory addresses for batch 6...
+Converting vector indices into virtual memory addresses for batch 7...
+Converting vector indices into virtual memory addresses for batch 8...
+Converting vector indices into virtual memory addresses for batch 9...
+len(emb_dataset): 10
+len(emb_dataset[0]): 512
+emb_dataset[0][0].shape: (10880,)
+(Time elapsed(s) in address generation: 206.625015sec)
+
+********************************
+* On-Chip Memory Configuration *
+********************************
+Memory size: 134217728 B (128 MB)
+Memory type: spad
+Memory policy: spad_oracle
+********************************
+on mem data structure size: 8192.11 KB
+(Time elapsed(s) in create memory structure:   1.287334sec)
+
+********************
+* Simulation Start *
+********************
+Simulation for batch 0...
+Simulation for batch 1...
+Simulation for batch 2...
+Simulation for batch 3...
+Simulation for batch 4...
+Simulation for batch 5...
+Simulation for batch 6...
+Simulation for batch 7...
+Simulation for batch 8...
+Simulation for batch 9...
+Simulation Done
+
+**********************
+* Simulation Results *
+**********************
+Total hit ratio: 0.8499
+Total accesses: 55705600
+Total hits: 47344212
+Total misses: 8361388
+----------------------------------------
+Per batch results
+[Batch 0] hit ratio: 0.8428   accesses: 5570560   hits: 4694642   misses: 875918
+[Batch 1] hit ratio: 0.7862   accesses: 5570560   hits: 4379774   misses: 1190786
+[Batch 2] hit ratio: 0.9573   accesses: 5570560   hits: 5332812   misses: 237748
+[Batch 3] hit ratio: 0.8092   accesses: 5570560   hits: 4507732   misses: 1062828
+[Batch 4] hit ratio: 0.8173   accesses: 5570560   hits: 4552678   misses: 1017882
+[Batch 5] hit ratio: 0.9632   accesses: 5570560   hits: 5365362   misses: 205198
+[Batch 6] hit ratio: 0.7713   accesses: 5570560   hits: 4296594   misses: 1273966
+[Batch 7] hit ratio: 0.8486   accesses: 5570560   hits: 4727402   misses: 843158
+[Batch 8] hit ratio: 0.9695   accesses: 5570560   hits: 5400476   misses: 170084
+[Batch 9] hit ratio: 0.7336   accesses: 5570560   hits: 4086740   misses: 1483820
+**********************
+(Time elapsed(s) in do simulation:  94.747045sec)

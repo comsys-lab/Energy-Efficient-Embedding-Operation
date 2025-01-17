@@ -1,4 +1,4 @@
-from Helper import Helper
+from Helper import Helper, print_styled_box
 from ReqGenerator import ReqGenerator
 from MemSpad import MemSpad
 from MemCache import MemCache
@@ -24,18 +24,19 @@ def dash_separated_ints(value):
 def print_general_config(nbatches, n_format, bsz, table_config, emb_dim, lookups_per_sample, fname):
     emb_config = np.fromstring(table_config, dtype=int, sep="-")
     emb_config = np.asarray(emb_config, dtype=np.int32)
-    print("\n************************************")
-    print("* General Simulation Configuration *")
-    print("************************************")
-    print("Dataset: {}".format(fname))
-    print("Numeric format: {} bits".format(str(n_format*8)))
-    print("Num batches: {}".format(str(nbatches)))
-    print("Num tables: {}".format(str(len(emb_config))))
-    print("Batch Size (samples per batch): {}".format(str(bsz)))
-    print("Vectors per table: {}".format(str(emb_config[0])))
-    print("Lookups per sample: {}".format(str(lookups_per_sample)))
-    print("Embedding Dimension {}".format(str(emb_dim)))
-    print("************************************")
+    
+    content = [
+        f"Dataset: {fname}",
+        f"Numeric format: {str(n_format*8)} bits",
+        f"Num batches: {str(nbatches)}",
+        f"Num tables: {str(len(emb_config))}",
+        f"Batch Size (samples per batch): {str(bsz)}",
+        f"Vectors per table: {str(emb_config[0])}",
+        f"Lookups per sample: {str(lookups_per_sample)}",
+        f"Embedding Dimension {str(emb_dim)}"
+    ]
+    
+    print_styled_box("General Simulation Configuration", content)
 
 if __name__ == "__main__":
     #-------------------------------------------------------------------

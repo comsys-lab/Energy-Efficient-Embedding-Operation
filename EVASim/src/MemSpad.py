@@ -5,6 +5,7 @@ import itertools
 import random
 from collections import OrderedDict, Counter
 from tqdm import tqdm
+from Helper import print_styled_header, print_styled_box
 
 class MemSpad:
     def __init__(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran):
@@ -46,20 +47,15 @@ class MemSpad:
         self.mem_policy = policy        
         
     def print_config(self):
-        ### print current configurations
-        print("\n********************************")
-        print("* On-Chip Memory Configuration *")
-        print("********************************")
-        print("Memory size: {} B ({} MB)".format(self.mem_size, int(self.mem_size/1024/1024)))
-        print("Memory type: {}".format(self.mem_type))
-        print("Memory policy: {}".format(self.mem_policy))
-        print("********************************")
+        content = [
+            f"Memory size: {self.mem_size} B ({int(self.mem_size/1024/1024)} MB)",
+            f"Memory type: {self.mem_type}",
+            f"Memory policy: {self.mem_policy}"
+        ]
+        print_styled_box("On-Chip Memory Configuration", content)
         
     def print_sim(self):
-        ### print current configurations
-        print("\n********************")
-        print("* Simulation Start *")
-        print("********************")
+        print_styled_header("Simulation Start")
         
     def create_on_mem(self):
         ### create on-chip memory data structure (spad or cache)
@@ -161,25 +157,29 @@ class MemSpad:
         self.print_stats()
         
     def print_stats(self):
-        # calculate total results
         total_hits = 0
         total_miss = 0
         for i in range(len(self.access_results)):
-            total_hits = total_hits + self.access_results[i][0]
-            total_miss = total_miss + self.access_results[i][1]
+            total_hits += self.access_results[i][0]
+            total_miss += self.access_results[i][1]
         total_hit_ratio = total_hits / (total_hits + total_miss)
         
-        # print stats
-        print("\n**********************")
-        print("* Simulation Results *")
-        print("**********************")
-        print("Total hit ratio: {:.4f}".format(total_hit_ratio))
-        print("Total accesses: {}".format(total_hits+total_miss))
-        print("Total hits: {}".format(total_hits))
-        print("Total misses: {}".format(total_miss))
-        print("----------------------------------------")
-        print("Per batch results")
+        content = [
+            f"Total hit ratio: {total_hit_ratio:.4f}",
+            f"Total accesses: {total_hits+total_miss}",
+            f"Total hits: {total_hits}",
+            f"Total misses: {total_miss}",
+            "",
+            "Per batch results:"
+        ]
+        
         for i in range(len(self.access_results)):
             batch_hit_ratio = self.access_results[i][0] / (self.access_results[i][0] + self.access_results[i][1])
-            print("[Batch {}] hit ratio: {:.4f}   accesses: {}   hits: {}   misses: {}".format(i, batch_hit_ratio, self.access_results[i][0]+self.access_results[i][1], self.access_results[i][0], self.access_results[i][1]))
-        print("**********************")
+            content.append(
+                f"[Batch {i}] hit ratio: {batch_hit_ratio:.4f} " +
+                f"accesses: {self.access_results[i][0]+self.access_results[i][1]} " +
+                f"hits: {self.access_results[i][0]} " +
+                f"misses: {self.access_results[i][1]}"
+            )
+        
+        print_styled_box("Simulation Results", content)

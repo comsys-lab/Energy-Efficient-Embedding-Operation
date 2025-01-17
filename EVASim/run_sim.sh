@@ -2,14 +2,15 @@
 # Original code: https://github.com/rishucoding/reproduce_MICRO24_GPU_DLRM_inference
 
 ### outdir ### 
-OUT="results_ed_r_nt_lk_nb_bs"
+# OUT="results_ed_r_nt_lk_nb_bs"
+OUT="results"
 mkdir -p $OUT
 ##############
 
 ### dataset ###
 data_path_dir="$(pwd)/datasets/"
 # dataset_list=("reuse_high/table_1M.txt" "reuse_medium/table_1M.txt" "reuse_low/table_1M.txt")
-dataset_list=("reuse_medium/table_1M.txt")
+dataset_list=("reuse_high/table_1M.txt")
 ###############
 
 ### simulation parameters ###
@@ -21,7 +22,7 @@ EMB_POOL=170
 EMBS="$EMB_DIM,$EMB_ROW,$EMB_TBL,$EMB_POOL"
 
 NUM_BATCH=1
-BS=1
+BS=32
 ##############################
 
 ### others ###
@@ -39,7 +40,7 @@ for dataset in "${dataset_list[@]}"; do
     OUTFILE="$OUTDIR/$OUTFILE"
     for e in $EMBS; do
         IFS=','; set -- $e; EMB_DIM=$1; EMB_ROW=$2; EMB_TBL=$3; EMB_LS=$4; unset IFS;
-        EMB_TBL=$(python -c "$PyGenTbl" "$EMB_ROW" "$EMB_TBL")
+        EMB_TBL=$(python3 -c "$PyGenTbl" "$EMB_ROW" "$EMB_TBL")
         python3 src/simulator.py --num-batches $NUM_BATCH --batch-size $BS\
             --lookups-per-sample $EMB_LS --arch-sparse-feature-size $EMB_DIM\
             --arch-embedding-size $EMB_TBL --data-generation=$DATA_GEN_PATH --memory-config=$MEM_CFG | tee $(pwd)/${OUTFILE}_${MEM_CFG}.log
