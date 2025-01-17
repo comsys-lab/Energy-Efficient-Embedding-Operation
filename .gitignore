@@ -1,10 +1,12 @@
 # EVASim
+EVASim/MemStructure.py
 EVASim/__pycache__
 EVASim/results_ed_r_nt_lk_nb_bs
 EVASim/results_test
 EVASim/multi_run_sim.sh
-EVASim/run_sim_wiki.sh
 EVASim/temp_run_sim.sh
+# EVASim/run_sim_tf.sh
+# EVASim/run_sim_vdb.sh
 
 # rep_figures
 
