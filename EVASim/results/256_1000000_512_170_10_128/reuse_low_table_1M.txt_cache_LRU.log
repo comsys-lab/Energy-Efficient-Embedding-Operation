@@ -1,0 +1,77 @@
+
+╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 General Simulation Configuration 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
+╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+║ Dataset: /workspace/EVASim/datasets/reuse_low/table_1M.txt                                         ║
+║ Numeric format: 8 bits                                                                             ║
+║ Num batches: 10                                                                                    ║
+║ Num tables: 512                                                                                    ║
+║ Batch Size (samples per batch): 128                                                                ║
+║ Vectors per table: 1000000                                                                         ║
+║ Lookups per sample: 170                                                                            ║
+║ Embedding Dimension 256                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+(Time elapsed(s) in model and data gen:   6.809186sec)
+[DEBUG] addr_trace shape: (10, 512, 43520)
+Converting vector indices into virtual memory addresses for batch 0...
+Converting vector indices into virtual memory addresses for batch 1...
+Converting vector indices into virtual memory addresses for batch 2...
+Converting vector indices into virtual memory addresses for batch 3...
+Converting vector indices into virtual memory addresses for batch 4...
+Converting vector indices into virtual memory addresses for batch 5...
+Converting vector indices into virtual memory addresses for batch 6...
+Converting vector indices into virtual memory addresses for batch 7...
+Converting vector indices into virtual memory addresses for batch 8...
+Converting vector indices into virtual memory addresses for batch 9...
+(Time elapsed(s) in address generation: 838.235844sec)
+
+********************************
+* On-Chip Memory Configuration *
+********************************
+Memory size: 134217728 B (128 MB)
+Memory type: cache
+Memory policy: cache_LRU
+Cache way: 16-way
+Cache line size: 128 B
+Cache set: 65536 sets
+Cache tag bits: 25 bits
+********************************
+on mem data structure size: 549.30 KB
+(Time elapsed(s) in create memory structure:   0.496056sec)
+
+********************
+* Simulation Start *
+********************
+Processing batch 0...
+Processing batch 1...
+Processing batch 2...
+Processing batch 3...
+Processing batch 4...
+Processing batch 5...
+Processing batch 6...
+Processing batch 7...
+Processing batch 8...
+Processing batch 9...
+Simulation Done
+
+**********************
+* Simulation Results *
+**********************
+Total hit ratio: 0.1153
+Total accesses: 222822400
+Total hits: 25696582
+Total misses: 197125818
+----------------------------------------
+Per batch results
+[Batch 0] hit ratio: 0.1145   accesses: 22282240   hits: 2552198   misses: 19730042
+[Batch 1] hit ratio: 0.1152   accesses: 22282240   hits: 2566722   misses: 19715518
+[Batch 2] hit ratio: 0.1161   accesses: 22282240   hits: 2587632   misses: 19694608
+[Batch 3] hit ratio: 0.1148   accesses: 22282240   hits: 2557750   misses: 19724490
+[Batch 4] hit ratio: 0.1157   accesses: 22282240   hits: 2578112   misses: 19704128
+[Batch 5] hit ratio: 0.1155   accesses: 22282240   hits: 2572706   misses: 19709534
+[Batch 6] hit ratio: 0.1149   accesses: 22282240   hits: 2560224   misses: 19722016
+[Batch 7] hit ratio: 0.1163   accesses: 22282240   hits: 2591412   misses: 19690828
+[Batch 8] hit ratio: 0.1150   accesses: 22282240   hits: 2562878   misses: 19719362
+[Batch 9] hit ratio: 0.1152   accesses: 22282240   hits: 2566948   misses: 19715292
+**********************
+(Time elapsed(s) in do simulation: 1136.441309sec)

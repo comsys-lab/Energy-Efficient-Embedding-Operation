@@ -6,6 +6,7 @@ import random
 from collections import OrderedDict, Counter
 from LRUlist import LRUlist
 from tqdm import tqdm
+from Helper import print_styled_header, print_styled_box
 
 class MemCache:
     def __init__(self, mem_size, mem_type, cache_config, emb_dim, emb_dataset):
@@ -53,24 +54,19 @@ class MemCache:
         self.mem_policy = policy        
         
     def print_config(self):
-        # print current configurations
-        print("\n********************************")
-        print("* On-Chip Memory Configuration *")
-        print("********************************")
-        print("Memory size: {} B ({} MB)".format(self.mem_size, int(self.mem_size/1024/1024)))
-        print("Memory type: {}".format(self.mem_type))
-        print("Memory policy: {}".format(self.mem_policy))
-        print("Cache way: {}-way".format(self.cache_way))
-        print("Cache line size: {} B".format(self.cache_line_size))
-        print("Cache set: {} sets".format(self.cache_set))
-        print("Cache tag bits: {} bits".format(self.cache_tag_bits))
-        print("********************************")
+        content = [
+            f"Memory size: {self.mem_size} B ({int(self.mem_size/1024/1024)} MB)",
+            f"Memory type: {self.mem_type}",
+            f"Memory policy: {self.mem_policy}",
+            f"Cache way: {self.cache_way}-way",
+            f"Cache line size: {self.cache_line_size} B",
+            f"Cache set: {self.cache_set} sets",
+            f"Cache tag bits: {self.cache_tag_bits} bits"
+        ]
+        print_styled_box("On-Chip Memory Configuration", content)
         
     def print_sim(self):
-        # print current configurations
-        print("\n********************")
-        print("* Simulation Start *")
-        print("********************")
+        print_styled_header("Simulation Start")
         
     def get_tag_bits(self, addr):
         # make bits lower than tag bits to zero
@@ -225,17 +221,22 @@ class MemCache:
             total_miss = total_miss + self.access_results[i][1]
         total_hit_ratio = total_hits / (total_hits + total_miss)
         
-        # print stats
-        print("\n**********************")
-        print("* Simulation Results *")
-        print("**********************")
-        print("Total hit ratio: {:.4f}".format(total_hit_ratio))
-        print("Total accesses: {}".format(total_hits+total_miss))
-        print("Total hits: {}".format(total_hits))
-        print("Total misses: {}".format(total_miss))
-        print("----------------------------------------")
-        print("Per batch results")
+        # prepare content for styled box
+        content = [
+            f"Total hit ratio: {total_hit_ratio:.4f}",
+            f"Total accesses: {total_hits+total_miss}",
+            f"Total hits: {total_hits}",
+            f"Total misses: {total_miss}",
+            "----------------------------------------",
+            "Per batch results"
+        ]
+        
+        # add per batch results
         for i in range(len(self.access_results)):
             batch_hit_ratio = self.access_results[i][0] / (self.access_results[i][0] + self.access_results[i][1])
-            print("[Batch {}] hit ratio: {:.4f}   accesses: {}   hits: {}   misses: {}".format(i, batch_hit_ratio, self.access_results[i][0]+self.access_results[i][1], self.access_results[i][0], self.access_results[i][1]))
-        print("**********************")
+            content.append(
+                f"[Batch {i}] hit ratio: {batch_hit_ratio:.4f}   accesses: {self.access_results[i][0]+self.access_results[i][1]}   "
+                f"hits: {self.access_results[i][0]}   misses: {self.access_results[i][1]}"
+            )
+        
+        print_styled_box("Simulation Results", content)

@@ -131,9 +131,9 @@ if __name__ == "__main__":
     helper.set_timer()
     reqgen.index_to_addr()
     emb_dataset = reqgen.addr_trace
-    print("len(emb_dataset): {}".format(len(emb_dataset)))
-    print("len(emb_dataset[0]): {}".format(len(emb_dataset[0])))
-    print("emb_dataset[0][0].shape: {}".format(emb_dataset[0][0].shape))
+    # print("len(emb_dataset): {}".format(len(emb_dataset)))
+    # print("len(emb_dataset[0]): {}".format(len(emb_dataset[0])))
+    # print("emb_dataset[0][0].shape: {}".format(emb_dataset[0][0].shape))
     helper.end_timer("address generation")
     
     #-------------------------------------------------------------------

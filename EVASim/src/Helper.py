@@ -1,7 +1,4 @@
 import time
-from colorama import init, Fore, Back, Style
-
-init()  # colorama initialization
 
 class Helper:
     def init(self):
@@ -16,16 +13,18 @@ class Helper:
         print('(Time elapsed(s) in {}: {:10.6f}sec)'.format(task, self.end-self.start))
 
 def print_styled_header(title):
-    width = 40
-    print(f"\n{Back.YELLOW}{Fore.BLACK}{'='*width}")
-    print(f"{title.center(width)}")
-    print(f"{'='*width}{Style.RESET_ALL}")
+    width = 100
+    title_decorated = f"《 {title} 》"
+    print("\n╔" + "═"*width + "╗")
+    print("║" + "▒"*(width//2-len(title_decorated)//2-1) + title_decorated + "▒"*(width//2-len(title_decorated)//2-1) + "║")
+    print("╚" + "═"*width + "╝")
 
 def print_styled_box(title, content_lines):
-    width = 50
-    print(f"\n{Back.YELLOW}{Fore.BLACK}{'='*width}")
-    print(f"{title.center(width)}")
-    print(f"{'-'*width}")
+    width = 100
+    title_decorated = f"《 {title} 》"
+    print("\n╔" + "═"*width + "╗")
+    print("║" + "▒"*(width//2-len(title_decorated)//2-1) + title_decorated + "▒"*(width//2-len(title_decorated)//2-1) + "║")
+    print("╠" + "═"*width + "╣")
     for line in content_lines:
-        print(f"{line.ljust(width)}")
-    print(f"{'='*width}{Style.RESET_ALL}")
+        print("║ " + line.ljust(width-2) + " ║")
+    print("╚" + "═"*width + "╝")
