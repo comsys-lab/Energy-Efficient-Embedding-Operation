@@ -118,6 +118,19 @@ if __name__ == "__main__":
     reqgen = ReqGenerator(nbatches, n_format, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran)
     reqgen.data_gen()
     
+    # # temporal test: store reqgen.ls_i np array in a txt file, each element in each row in the txt file.
+    # with open("ls_i.txt", "w") as f:
+    #     for i in range(len(reqgen.lS_i)):
+    #         for j in range(len(reqgen.lS_i[i])):
+    #             for k in range(len(reqgen.lS_i[i][j])):
+    #                 f.write(str(reqgen.lS_i[i][j][k]) + "\n")
+    #             # f.write("\n")
+    # f.close()
+    
+    # exit()
+    
+    
+    
     print_general_config(reqgen.nbatches, reqgen.n_format, reqgen.bsz, reqgen.embsize, reqgen.emb_dim, reqgen.num_indices_per_lookup, reqgen.fname)
 
     helper.end_timer("model and data gen")
@@ -135,6 +148,29 @@ if __name__ == "__main__":
     # print("len(emb_dataset[0]): {}".format(len(emb_dataset[0])))
     # print("emb_dataset[0][0].shape: {}".format(emb_dataset[0][0].shape))
     helper.end_timer("address generation")
+    
+    # temporal test: store reqgen.addr_trace np array in a txt file, each element in each row in the txt file.
+    with open("addr_trace.txt", "w") as f:
+        for i in range(len(reqgen.addr_trace)):
+            for j in range(len(reqgen.addr_trace[i])):
+                for k in range(len(reqgen.addr_trace[i][j])):
+                    f.write(str(reqgen.addr_trace[i][j][k]) + "\n")
+                # f.write("\n")
+    f.close()
+    
+    exit()
+    
+    #-------------------------------------------------------------------
+    
+    ##############################################
+    ### This is only for Static_Profile config ###
+    ##############################################
+    
+    # if mem_config_file == "static_profile":
+    #     helper.set_timer()
+    #     reqgen.index_to_addr()
+    #     emb_dataset = reqgen.addr_trace
+    #     helper.end_timer("address generation")
     
     #-------------------------------------------------------------------
     

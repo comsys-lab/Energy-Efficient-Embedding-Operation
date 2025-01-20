@@ -41,7 +41,7 @@ for dataset in "${dataset_list[@]}"; do
     for e in $EMBS; do
         IFS=','; set -- $e; EMB_DIM=$1; EMB_ROW=$2; EMB_TBL=$3; EMB_LS=$4; unset IFS;
         EMB_TBL=$(python3 -c "$PyGenTbl" "$EMB_ROW" "$EMB_TBL")
-        python3 src/simulator.py --num-batches $NUM_BATCH --batch-size $BS\
+        python3 src/simulator.py --num-batches $NUM_BATCH --batch-size $BS --numeric-format-bits "8" \
             --lookups-per-sample $EMB_LS --arch-sparse-feature-size $EMB_DIM\
             --arch-embedding-size $EMB_TBL --data-generation=$DATA_GEN_PATH --memory-config=$MEM_CFG | tee $(pwd)/${OUTFILE}_${MEM_CFG}.log
     done

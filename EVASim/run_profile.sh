@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Check if correct number of arguments is provided
-if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <dataset_name> <num_emb>"
+if [ "$#" -ne 10 ]; then
+    echo "Usage: $0 <dataset_name> <num_emb> <num_batch> <num_table> <batch_sz> <lookup_per_table> <emb_dim> <mem_gran> <n_format> <rows_per_table>"
     exit 1
 fi
 
@@ -18,7 +18,7 @@ if [ -f "static_profile" ]; then
 fi
 
 # Compile with optimizations
-g++ -O3 -march=native -fopenmp -flto -funroll-loops src/static_profile.cpp -o static_profile
+g++ -O3 -march=native -fopenmp -flto -funroll-loops src/static_profile_addr.cpp -o static_profile
 
 # Check if compilation was successful
 if [ $? -ne 0 ]; then
@@ -26,6 +26,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Run the program with absolute dataset path
-./static_profile "${DATASET_PATH}" ${NUM_EMB}
+# Run the program with absolute dataset path and all parameters
+./static_profile "${DATASET_PATH}" ${NUM_EMB} $3 $4 $5 $6 $7 $8 $9 ${10}
 

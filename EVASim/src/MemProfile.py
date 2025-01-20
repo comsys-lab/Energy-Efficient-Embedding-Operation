@@ -5,6 +5,7 @@ import itertools
 import random
 from collections import OrderedDict, Counter
 from tqdm import tqdm
+from Helper import print_styled_header, print_styled_box
 
 class MemProfile:
     def __init__(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran):
@@ -46,20 +47,15 @@ class MemProfile:
         self.mem_policy = policy        
         
     def print_config(self):
-        ### print current configurations
-        print("\n********************************")
-        print("* On-Chip Memory Configuration *")
-        print("********************************")
-        print("Memory size: {} B ({} MB)".format(self.mem_size, int(self.mem_size/1024/1024)))
-        print("Memory type: {}".format(self.mem_type))
-        print("Memory policy: {}".format(self.mem_policy))
-        print("********************************")
+        content = [
+            f"Memory size: {self.mem_size} B ({int(self.mem_size/1024/1024)} MB)",
+            f"Memory type: {self.mem_type}",
+            f"Memory policy: {self.mem_policy}"
+        ]
+        print_styled_box("On-Chip Memory Configuration", content)
         
     def print_sim(self):
-        ### print current configurations
-        print("\n********************")
-        print("* Simulation Start *")
-        print("********************")
+        print_styled_header("Simulation Start")
         
     def create_on_mem(self):
         ### create on-chip memory data structure (spad or cache)

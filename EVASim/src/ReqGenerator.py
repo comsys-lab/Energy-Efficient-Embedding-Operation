@@ -116,27 +116,37 @@ class ReqGenerator:
         rows_per_table = ln_emb[0]
         for nb in range(len(self.lS_i)): # recall that self.lS_i[numbatch][table][batchsz*lookuppersample]
             print("Converting vector indices into virtual memory addresses for batch {}...".format(nb))
-            with tqdm(total=len(self.lS_i[nb])*len(self.lS_i[nb][0])*int(self.emb_dim / self.mem_gran), desc="Processing") as pbar:
+            with tqdm(total=len(self.lS_i[nb])*len(self.lS_i[nb][0])*int(self.emb_dim * self.n_format / self.mem_gran), desc="Processing") as pbar:
                 for nt in range(len(self.lS_i[nb])):
                     for vec in range(len(self.lS_i[nb][nt])):
-                        for dim in range(int(self.emb_dim / self.mem_gran)):
+                        for dim in range(int(self.emb_dim * self.n_format / self.mem_gran)):
                             tbl_bits = nt << int(np.log2(rows_per_table) + np.log2(self.emb_dim))
-                            vec_idx = self.lS_i[nb][nt][vec] << int(np.log2(self.emb_dim))
+                            vec_idx = self.lS_i[nb][nt][vec] << int(np.log2(self.emb_dim * self.n_format))
                             dim_bits = self.mem_gran * dim
                             this_addr = tbl_bits + vec_idx + dim_bits
                             
-                            # numeric format bits-related
-                            n_format_offset_bits = int(np.log2(self.n_format))
-                            if n_format_offset_bits > 0:
-                                this_addr_base = this_addr << n_format_offset_bits
-                                for i in range(self.n_format):
-                                    this_addr = this_addr_base + i
-                                    self.addr_trace[nb][nt][vec * int(self.emb_dim * self.n_format / self.mem_gran) + dim + i] = this_addr
-                                    # print(this_addr)
-                                    # print(bin(this_addr))
-                            else:
-                                self.addr_trace[nb][nt][vec * int(self.emb_dim * self.n_format / self.mem_gran) + dim] = this_addr
+                            self.addr_trace[nb][nt][vec * int(self.emb_dim * self.n_format / self.mem_gran) + dim] = this_addr
                             # print(this_addr)
+                            
+                        # This is for backup...
+                        # for dim in range(int(self.emb_dim / self.mem_gran)):
+                        #     tbl_bits = nt << int(np.log2(rows_per_table) + np.log2(self.emb_dim))
+                        #     vec_idx = self.lS_i[nb][nt][vec] << int(np.log2(self.emb_dim))
+                        #     dim_bits = self.mem_gran * dim
+                        #     this_addr = tbl_bits + vec_idx + dim_bits
+                            
+                        #     # numeric format bits-related
+                        #     n_format_offset_bits = int(np.log2(self.n_format))
+                        #     if n_format_offset_bits > 0:
+                        #         this_addr_base = this_addr << n_format_offset_bits
+                        #         for i in range(self.n_format):
+                        #             this_addr = this_addr_base + i
+                        #             self.addr_trace[nb][nt][vec * int(self.emb_dim * self.n_format / self.mem_gran) + dim*self.n_format + i] = this_addr
+                        #             # print(this_addr)
+                        #             # print(bin(this_addr))
+                        #     else:
+                        #         self.addr_trace[nb][nt][vec * int(self.emb_dim * self.n_format / self.mem_gran) + dim] = this_addr
+                        #     # print(this_addr)
                         
                             pbar.update(1)
 
