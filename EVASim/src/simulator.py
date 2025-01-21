@@ -2,6 +2,7 @@ from Helper import Helper, print_styled_box
 from ReqGenerator import ReqGenerator
 from MemSpad import MemSpad
 from MemCache import MemCache
+from MemProfile import MemProfile
 import argparse
 import sys
 import numpy as np
@@ -113,7 +114,7 @@ if __name__ == "__main__":
     ################################
     ### Create request generator ###
     ################################
-    
+
     helper.set_timer()
     reqgen = ReqGenerator(nbatches, n_format, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran)
     reqgen.data_gen()
@@ -185,6 +186,13 @@ if __name__ == "__main__":
         mem_struct = MemSpad(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran)
     elif mem_type == "cache":
         mem_struct = MemCache(mem_size, mem_type, cache_config, emb_dim, emb_dataset)
+    elif mem_type == "profile":
+        # generate the profiled dataset path by replacing the folder name with 'profiled_datasets'
+        last_slash = fname.rfind('/')
+        second_last_slash = fname[:last_slash].rfind('/')
+        profiled_path = fname[:second_last_slash+1] + 'profiled_datasets' + fname[last_slash:]
+        mem_struct = MemProfile(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, profiled_path)
+        
     mem_struct.set_policy(mem_policy)
     mem_struct.print_config()
     mem_struct.create_on_mem() # num_tables, num_rows_per_table

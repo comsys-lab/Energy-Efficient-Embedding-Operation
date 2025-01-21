@@ -9,8 +9,8 @@ mkdir -p $OUT
 
 ### dataset ###
 data_path_dir="$(pwd)/datasets/"
-# dataset_list=("reuse_high/table_1M.txt" "reuse_medium/table_1M.txt" "reuse_low/table_1M.txt")
-dataset_list=("reuse_high/table_1M.txt")
+# dataset_list=("dlrm/reuse_high_table_1M.txt" "dlrm/reuse_medium_table_1M.txt" "dlrm/reuse_low_table_1M.txt")
+dataset_list=("dlrm/reuse_high_table_1M.txt")
 ###############
 
 ### simulation parameters ###

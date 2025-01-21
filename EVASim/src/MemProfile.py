@@ -8,7 +8,7 @@ from tqdm import tqdm
 from Helper import print_styled_header, print_styled_box
 
 class MemProfile:
-    def __init__(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran):
+    def __init__(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, profiled_path):
         self.mem_size = 0 ### KB
         self.mem_type = "init"
         self.mem_gran = 0
@@ -22,12 +22,13 @@ class MemProfile:
         self.emb_dataset = np.ones(1)
         self.num_tables = 0
         self.vectors_per_table = 0
+        self.profiled_path = ""
         
         self.access_results = []
                
-        self.set_params(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran)
+        self.set_params(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, profiled_path)
         
-    def set_params(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran):
+    def set_params(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, profiled_path):
         self.mem_size = mem_size * 1024 # KB -> Byte
         self.mem_type = mem_type # spad or cache
         self.mem_gran = mem_gran
@@ -38,6 +39,7 @@ class MemProfile:
         self.num_tables = len(self.emb_dataset[0])
         self.vectors_per_table = vectors_per_table
         self.elem_per_vector = int(self.emb_dim / self.mem_gran)
+        self.profiled_path = profiled_path
         
         self.spad_size = int(self.mem_size / self.emb_dim * self.elem_per_vector)
         
@@ -62,71 +64,24 @@ class MemProfile:
         self.on_mem = self.set_spad()
     
     def set_spad(self):
-        if self.mem_policy == "static_profile":
+        if self.mem_policy == "profile_static":
             on_mem_set = []
-        
-        # Delete below codes after coding profiling techniques
-        
-        if self.mem_policy == "spad_naive":
-            on_mem_set = []
-            counter = 0
-            break_flag = False
             
-            with tqdm(total=self.spad_size, desc="Setting spad") as pbar:
-                for t_i in range(self.num_tables):
-                    for v_i in range(self.vectors_per_table):
-                        for d_i in range(self.elem_per_vector):
-                            tbl_bits = t_i << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
-                            vec_idx = v_i << int(np.log2(self.emb_dim))
-                            dim_bits = self.mem_gran * d_i
-                            this_addr = tbl_bits + vec_idx + dim_bits
-                            on_mem_set.append(this_addr)
-                            counter = counter + 1
-                            if counter==self.spad_size:
-                                break_flag = True
-                                break
-                            pbar.update(1)
-                        if break_flag:
-                            break
-                    if break_flag:
-                        break
-            print("[DEBUG] on_mem has {} elements.".format(counter))
+            # open the profiled dataset file using the self.profiled_path
+            with open(self.profiled_path, 'r') as f:
+            # load the profiled dataset in to the on_mem_set array (load "self.spad_size" of elements)
+                for i in range(self.spad_size):
+                    line = f.readline()
+                    on_mem_set.append(int(line))
+                    # break if the end of the file is reached
+                    if not line:
+                        break                    
             on_mem_set = np.asarray(on_mem_set, dtype=np.int64)
-        
-        elif self.mem_policy == "spad_random":
-            on_mem_set = []
-            ### Randomly store the data from the available address space until the on-chip memory becomes full.            
-            avail_space = list(itertools.product(range(self.num_tables), range(self.vectors_per_table)))
-            random.shuffle(avail_space)
-            ### avail_space = avail_space[:self.spad_size]
-            avail_space = avail_space[:int(self.spad_size/self.elem_per_vector)]
-            with tqdm(total=self.spad_size, desc="Setting spad") as pbar:
-                for pair in avail_space:
-                    for d_i in range(self.elem_per_vector):
-                        # address generation
-                        tbl_bits = pair[0] << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
-                        vec_idx = pair[1] << int(np.log2(self.emb_dim))
-                        dim_bits = self.mem_gran * d_i
-                        this_addr = tbl_bits + vec_idx + dim_bits
-                        on_mem_set.append(this_addr)
-                        pbar.update(1)
-            print("[DEBUG] on_mem has {} elements.".format(len(avail_space)))
-            on_mem_set = np.asarray(on_mem_set, dtype=np.int64)
-        
-        elif self.mem_policy == "spad_oracle":
-            ### flatten the dataset -> count and sort the access frequency of each memory address
-            flat_dataset = itertools.chain.from_iterable(itertools.chain.from_iterable([self.emb_dataset[self.batch_counter]]))
-            
-            access_freq = Counter(flat_dataset)
-            access_freq = access_freq.most_common()
-            ### store the memory addresses in the spad
-            access_freq = access_freq[:min(self.spad_size, len(access_freq))]
-            on_mem_set = np.array([x[0] for x in access_freq], dtype = np.int64)
-            # print(len(access_freq))
-            # print(access_freq[0])
-            # print(access_freq[-1])
-            # print(on_mem_set.shape)
-            # exit()
+            f.close()
+            # [DEBUG] print the (number of entries in the on_mem_set) and (the first and the last element of the on_mem_set)
+            print("[DEBUG] on_mem has {} elements.".format(len(on_mem_set)))
+            print("[DEBUG] on_mem[0]: {}".format(on_mem_set[0]))
+            print("[DEBUG] on_mem[-1]: {}".format(on_mem_set[-1]))                    
         
         return on_mem_set
     
@@ -162,25 +117,29 @@ class MemProfile:
         self.print_stats()
         
     def print_stats(self):
-        # calculate total results
         total_hits = 0
         total_miss = 0
         for i in range(len(self.access_results)):
-            total_hits = total_hits + self.access_results[i][0]
-            total_miss = total_miss + self.access_results[i][1]
+            total_hits += self.access_results[i][0]
+            total_miss += self.access_results[i][1]
         total_hit_ratio = total_hits / (total_hits + total_miss)
         
-        # print stats
-        print("\n**********************")
-        print("* Simulation Results *")
-        print("**********************")
-        print("Total hit ratio: {:.4f}".format(total_hit_ratio))
-        print("Total accesses: {}".format(total_hits+total_miss))
-        print("Total hits: {}".format(total_hits))
-        print("Total misses: {}".format(total_miss))
-        print("----------------------------------------")
-        print("Per batch results")
+        content = [
+            f"Total hit ratio: {total_hit_ratio:.4f}",
+            f"Total accesses: {total_hits+total_miss}",
+            f"Total hits: {total_hits}",
+            f"Total misses: {total_miss}",
+            "",
+            "Per batch results:"
+        ]
+        
         for i in range(len(self.access_results)):
             batch_hit_ratio = self.access_results[i][0] / (self.access_results[i][0] + self.access_results[i][1])
-            print("[Batch {}] hit ratio: {:.4f}   accesses: {}   hits: {}   misses: {}".format(i, batch_hit_ratio, self.access_results[i][0]+self.access_results[i][1], self.access_results[i][0], self.access_results[i][1]))
-        print("**********************")
+            content.append(
+                f"[Batch {i}] hit ratio: {batch_hit_ratio:.4f} " +
+                f"accesses: {self.access_results[i][0]+self.access_results[i][1]} " +
+                f"hits: {self.access_results[i][0]} " +
+                f"misses: {self.access_results[i][1]}"
+            )
+        
+        print_styled_box("Simulation Results", content)
