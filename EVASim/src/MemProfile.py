@@ -62,6 +62,11 @@ class MemProfile:
         self.on_mem = self.set_spad()
     
     def set_spad(self):
+        if self.mem_policy == "static_profile":
+            on_mem_set = []
+        
+        # Delete below codes after coding profiling techniques
+        
         if self.mem_policy == "spad_naive":
             on_mem_set = []
             counter = 0

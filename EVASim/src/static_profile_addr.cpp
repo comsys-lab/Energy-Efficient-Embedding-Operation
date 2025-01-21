@@ -7,6 +7,7 @@
 #include <omp.h>
 #include <cstdint>
 #include <cmath>
+#include <filesystem>
 
 int main(int argc, char* argv[]) {
     // Check arguments
@@ -30,12 +31,23 @@ int main(int argc, char* argv[]) {
     uint64_t n_format = std::stoull(argv[9]);
     uint64_t rows_per_table = std::stoull(argv[10]);
 
-    // Get directory path and filename for output
+    // Get input filename without path and extension
     size_t last_slash = dataset_path.find_last_of("/");
-    size_t last_dot = dataset_path.find_last_of(".");
-    std::string dir_path = dataset_path.substr(0, last_slash + 1);
-    std::string filename = dataset_path.substr(last_slash + 1, last_dot - last_slash - 1);
+    std::string full_filename = dataset_path.substr(last_slash + 1);
+    size_t last_dot = full_filename.find_last_of(".");
+    std::string filename = full_filename.substr(0, last_dot);
+
+    // Create output directory path
+    std::string output_dir = "datasets/profiled_datasets/";
     
+    // Create directories if they don't exist using filesystem
+    try {
+        std::filesystem::create_directories(output_dir);
+    } catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Error creating directory: " << e.what() << std::endl;
+        return 1;
+    }
+
     // Read all numbers from file into a vector first
     std::vector<uint32_t> numbers;
     std::ifstream file(dataset_path);
@@ -83,26 +95,29 @@ int main(int argc, char* argv[]) {
 
     std::cout << "3D array filled successfully." << std::endl;
 
-    // Save index_array to file for verification
-    std::string index_output_path = dir_path + filename + "_index_array_" + 
-                                   std::to_string(num_batch) + "_" +
-                                   std::to_string(num_table) + "_" +
-                                   std::to_string(batch_sz) + "_" +
-                                   std::to_string(lookup_per_table) + ".txt";
-    
-    std::cout << "Writing index array to " << index_output_path << "..." << std::endl;
-    std::ofstream index_file(index_output_path);
 
-    // Write indices to file
-    for (const auto& batch : index_array) {
-        for (const auto& table : batch) {
-            for (const auto& idx : table) {
-                index_file << idx << "\n";
-            }
-        }
-    }
+    // [DEBUG]
+    // Save index_array to file for verification
+    // std::string index_output_path = output_dir + filename + "_index_array_" + 
+    //                                std::to_string(num_batch) + "_" +
+    //                                std::to_string(num_table) + "_" +
+    //                                std::to_string(batch_sz) + "_" +
+    //                                std::to_string(lookup_per_table) + ".txt";
     
-    std::cout << "Index array file created successfully." << std::endl;
+    // std::cout << "Writing index array to " << index_output_path << "..." << std::endl;
+    // std::ofstream index_file(index_output_path);
+
+    // // Write indices to file
+    // for (const auto& batch : index_array) {
+    //     for (const auto& table : batch) {
+    //         for (const auto& idx : table) {
+    //             index_file << idx << "\n";
+    //         }
+    //     }
+    // }
+    // index_file.close();
+    
+    // std::cout << "Index array file created successfully." << std::endl;
 
     std::cout << "Converting indices to virtual addresses..." << std::endl;
 
@@ -225,8 +240,7 @@ int main(int argc, char* argv[]) {
     std::cout << std::endl;
 
     // Create output file with profiling results
-    std::string profile_output_path = dir_path + filename + "_profile_" + 
-                                     std::to_string(num_emb) + ".txt";
+    std::string profile_output_path = output_dir + filename + "_" + std::to_string(num_emb) + ".txt";
     
     std::cout << "Writing profiling results to " << profile_output_path << "..." << std::endl;
     std::ofstream profile_file(profile_output_path);
@@ -247,30 +261,32 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Complete! Wrote " << written_lines << " entries." << std::endl;
 
+    // [DEBUG]
     // Create and open output file for addresses
-    std::string addr_output_path = dir_path + filename + "_addr_" + 
-                                  std::to_string(num_batch) + "_" +
-                                  std::to_string(num_table) + "_" +
-                                  std::to_string(batch_sz) + "_" +
-                                  std::to_string(lookup_per_table) + ".txt";
+    // std::string addr_output_path = output_dir + filename + "_addr_" + 
+    //                               std::to_string(num_batch) + "_" +
+    //                               std::to_string(num_table) + "_" +
+    //                               std::to_string(batch_sz) + "_" +
+    //                               std::to_string(lookup_per_table) + ".txt";
     
-    std::cout << "Writing addresses to " << addr_output_path << "..." << std::endl;
-    std::ofstream addr_file(addr_output_path);
+    // std::cout << "Writing addresses to " << addr_output_path << "..." << std::endl;
+    // std::ofstream addr_file(addr_output_path);
 
-    // Write addresses to file
-    for (const auto& batch : addr_array) {
-        for (const auto& table : batch) {
-            for (const auto& addr : table) {
-                addr_file << addr << "\n";
-            }
-        }
-    }
+    // // Write addresses to file
+    // for (const auto& batch : addr_array) {
+    //     for (const auto& table : batch) {
+    //         for (const auto& addr : table) {
+    //             addr_file << addr << "\n";
+    //         }
+    //     }
+    // }
+    // addr_file.close();
 
-    std::cout << "Complete! Address file created successfully." << std::endl;
+    // std::cout << "Complete! Address file created successfully." << std::endl;
 
     file.close();
-    addr_file.close();
-    index_file.close();
+    // addr_file.close();
+    // index_file.close();
     profile_file.close();
     return 0;
 }

@@ -7,10 +7,21 @@ if [ "$#" -ne 10 ]; then
 fi
 
 # Set variables with absolute path
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 DATASET_NAME=$1
 NUM_EMB=$2
-SCRIPT_DIR=$(dirname $(readlink -f $0))
-DATASET_PATH="${SCRIPT_DIR}/datasets/profile_target/${DATASET_NAME}.txt"
+NUM_BATCH=$3
+NUM_TABLE=$4
+BATCH_SZ=$5
+LOOKUP_PER_TABLE=$6
+EMB_DIM=$7
+MEM_GRAN=$8
+N_FORMAT=$9
+ROWS_PER_TABLE=${10}
+
+# Convert input filename format (replace '-' with '/')
+PROCESSED_FILENAME=$(echo $1 | tr '-' '/')
+DATASET_PATH="${SCRIPT_DIR}/datasets/${PROCESSED_FILENAME}.txt"
 
 # Remove existing executable if it exists
 if [ -f "static_profile" ]; then
@@ -18,7 +29,7 @@ if [ -f "static_profile" ]; then
 fi
 
 # Compile with optimizations
-g++ -O3 -march=native -fopenmp -flto -funroll-loops src/static_profile_addr.cpp -o static_profile
+g++ -O3 -march=native -fopenmp -flto -funroll-loops -std=c++17 src/static_profile_addr.cpp -o static_profile
 
 # Check if compilation was successful
 if [ $? -ne 0 ]; then
@@ -27,5 +38,5 @@ if [ $? -ne 0 ]; then
 fi
 
 # Run the program with absolute dataset path and all parameters
-./static_profile "${DATASET_PATH}" ${NUM_EMB} $3 $4 $5 $6 $7 $8 $9 ${10}
+./static_profile "${DATASET_PATH}" ${NUM_EMB} ${NUM_BATCH} ${NUM_TABLE} ${BATCH_SZ} ${LOOKUP_PER_TABLE} ${EMB_DIM} ${MEM_GRAN} ${N_FORMAT} ${ROWS_PER_TABLE}
 
