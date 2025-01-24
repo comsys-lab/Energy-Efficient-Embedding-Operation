@@ -58,6 +58,21 @@ class LRUlist:
             
         return False # Cache miss
 
+    def return_as_array(self):
+        # Preallocate list with known size for better performance
+        addr_list = [0] * self.cache_way
+        current = self.head
+        idx = 0
+        
+        # Fill the list with addresses
+        while current and idx < self.cache_way:
+            addr_list[idx] = current.addr if current.addr is not None else 0
+            current = current.next
+            idx += 1
+            
+        # Convert to numpy array with int64 dtype
+        return np.array(addr_list, dtype=np.int64)
+
     def print_list(self):
         # This method is for debugging.
         current = self.head

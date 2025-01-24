@@ -22,13 +22,13 @@ def dash_separated_ints(value):
     return value
 
 ## Credit: Original code from Rishabh
-def print_general_config(nbatches, n_format, bsz, table_config, emb_dim, lookups_per_sample, fname):
+def print_general_config(nbatches, n_format_byte, bsz, table_config, emb_dim, lookups_per_sample, fname):
     emb_config = np.fromstring(table_config, dtype=int, sep="-")
     emb_config = np.asarray(emb_config, dtype=np.int32)
     
     content = [
         f"Dataset: {fname}",
-        f"Numeric format: {str(n_format*8)} bits",
+        f"Numeric format: {str(n_format_byte*8)} bits",
         f"Num batches: {str(nbatches)}",
         f"Num tables: {str(len(emb_config))}",
         f"Batch Size (samples per batch): {str(bsz)}",
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     mem_config_file = args.memory_config
     n_format_bits = args.numeric_format_bits
-    n_format = int(np.ceil(n_format_bits / 8))
+    n_format_byte = int(np.ceil(n_format_bits / 8))
     nbatches = args.num_batches
     embsize = args.arch_embedding_size
     emb_dim = args.arch_sparse_feature_size #embedding dim
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     ################################
 
     helper.set_timer()
-    reqgen = ReqGenerator(nbatches, n_format, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran)
+    reqgen = ReqGenerator(nbatches, n_format_byte, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran)
     reqgen.data_gen()
     
     # # temporal test: store reqgen.ls_i np array in a txt file, each element in each row in the txt file.
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     
     
     
-    print_general_config(reqgen.nbatches, reqgen.n_format, reqgen.bsz, reqgen.embsize, reqgen.emb_dim, reqgen.num_indices_per_lookup, reqgen.fname)
+    print_general_config(reqgen.nbatches, reqgen.n_format_byte, reqgen.bsz, reqgen.embsize, reqgen.emb_dim, reqgen.num_indices_per_lookup, reqgen.fname)
 
     helper.end_timer("model and data gen")
     
@@ -191,7 +191,7 @@ if __name__ == "__main__":
         last_slash = fname.rfind('/')
         second_last_slash = fname[:last_slash].rfind('/')
         profiled_path = fname[:second_last_slash+1] + 'profiled_datasets' + fname[last_slash:]
-        mem_struct = MemProfile(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, profiled_path)
+        mem_struct = MemProfile(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, n_format_byte, profiled_path)
         
     mem_struct.set_policy(mem_policy)
     mem_struct.print_config()

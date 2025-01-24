@@ -37,9 +37,9 @@ class MemSpad:
         self.emb_dataset = emb_dataset # emb_dataset[numbatch][table][batchsz*lookuppersample]
         self.num_tables = len(self.emb_dataset[0])
         self.vectors_per_table = vectors_per_table
-        self.elem_per_vector = int(self.emb_dim / self.mem_gran)
+        self.access_per_vector = int(self.emb_dim / self.mem_gran)
         
-        self.spad_size = int(self.mem_size / self.emb_dim * self.elem_per_vector)
+        self.spad_size = int(self.mem_size / self.emb_dim * self.access_per_vector)
         
     def set_policy(self, policy):
         if (self.mem_type == "spad" and not policy.startswith("spad_")):
@@ -70,7 +70,7 @@ class MemSpad:
             with tqdm(total=self.spad_size, desc="Setting spad") as pbar:
                 for t_i in range(self.num_tables):
                     for v_i in range(self.vectors_per_table):
-                        for d_i in range(self.elem_per_vector):
+                        for d_i in range(self.access_per_vector):
                             tbl_bits = t_i << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
                             vec_idx = v_i << int(np.log2(self.emb_dim))
                             dim_bits = self.mem_gran * d_i
@@ -94,10 +94,10 @@ class MemSpad:
             avail_space = list(itertools.product(range(self.num_tables), range(self.vectors_per_table)))
             random.shuffle(avail_space)
             ### avail_space = avail_space[:self.spad_size]
-            avail_space = avail_space[:int(self.spad_size/self.elem_per_vector)]
+            avail_space = avail_space[:int(self.spad_size/self.access_per_vector)]
             with tqdm(total=self.spad_size, desc="Setting spad") as pbar:
                 for pair in avail_space:
-                    for d_i in range(self.elem_per_vector):
+                    for d_i in range(self.access_per_vector):
                         # address generation
                         tbl_bits = pair[0] << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
                         vec_idx = pair[1] << int(np.log2(self.emb_dim))
