@@ -21,7 +21,7 @@ EMB_TBL=10
 EMB_POOL=20
 EMBS="$EMB_DIM,$EMB_ROW,$EMB_TBL,$EMB_POOL"
 
-NUM_BATCH=1
+NUM_BATCH=15
 BS=32
 ##############################
 
