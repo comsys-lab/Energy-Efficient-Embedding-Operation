@@ -11,7 +11,7 @@
 ║ Lookups per sample: 20                                                                             ║
 ║ Embedding Dimension 128                                                                            ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-(Time elapsed(s) in model and data gen:   0.555603sec)
+(Time elapsed(s) in model and data gen:   0.551515sec)
 [DEBUG] addr_trace shape: (15, 10, 640)
 Converting vector indices into virtual memory addresses for batch 0...
 Converting vector indices into virtual memory addresses for batch 1...
@@ -28,19 +28,19 @@ Converting vector indices into virtual memory addresses for batch 11...
 Converting vector indices into virtual memory addresses for batch 12...
 Converting vector indices into virtual memory addresses for batch 13...
 Converting vector indices into virtual memory addresses for batch 14...
-(Time elapsed(s) in address generation:   0.294256sec)
+(Time elapsed(s) in address generation:   0.299449sec)
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 On-Chip Memory Configuration 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
 ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
-║ Memory size: 33554432 B (32 MB)                                                                    ║
+║ Memory size: 134217728 B (128 MB)                                                                  ║
 ║ Memory type: profile                                                                               ║
 ║ Memory policy: profile_dynamic_cache                                                               ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-[DEBUG] logger can contain 262144.0 vectors
+[DEBUG] logger can contain 1048576.0 vectors
 [DEBUG] logger is empty. Set the spad with the naive method.
-on mem data structure size: 2048.11 KB
-(Time elapsed(s) in create memory structure:   0.836934sec)
+on mem data structure size: 7812.61 KB
+(Time elapsed(s) in create memory structure:   3.207695sec)
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 Simulation Start 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
@@ -298,4 +298,4 @@ Simulation Done
 ║ [Batch 13] hit ratio: 0.5011 accesses: 6400 hits: 3207 misses: 3193                                ║
 ║ [Batch 14] hit ratio: 0.5605 accesses: 6400 hits: 3587 misses: 2813                                ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-(Time elapsed(s) in do simulation: 1019.668824sec)
+(Time elapsed(s) in do simulation: 4325.461355sec)

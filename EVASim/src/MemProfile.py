@@ -8,6 +8,7 @@ from LRUlist import LRUlist
 from tqdm import tqdm
 from Helper import print_styled_header, print_styled_box
 from itertools import chain
+from lru_cache import LRUCache
 
 class MemProfile:
     def __init__(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, n_format_byte, profiled_path):
@@ -71,7 +72,7 @@ class MemProfile:
         ### create on-chip memory data structure (spad or cache)        
         if self.mem_policy == "profile_dynamic_cache":            
             self.logger_size = int((self.mem_size / self.emb_dim) / self.n_format_byte) * self.access_per_vector # multiply access_per_vector to enable the vector-level LRU cache simulation
-            self.logger = LRUlist(self.logger_size) # it simulates fully associative LRU cache
+            self.logger = LRUCache(self.logger_size) # it simulates fully associative LRU cache
             print("[DEBUG] logger can contain {} vectors".format(self.logger_size / self.access_per_vector))
         self.on_mem = self.set_spad()
     
@@ -95,7 +96,7 @@ class MemProfile:
             print("[DEBUG] on_mem[-1]: {}".format(on_mem_set[-1]))
             
         elif self.mem_policy == "profile_dynamic_cache":
-            if self.logger.head.addr == None: # if the logger is empty, set the spad with the same method of spad_naive
+            if self.logger.is_empty(): # head.addr 대신 is_empty() 사용
                 print("[DEBUG] logger is empty. Set the spad with the naive method.")
                 counter = 0
                 break_flag = False
@@ -120,7 +121,7 @@ class MemProfile:
                             break
                 on_mem_set = np.asarray(on_mem_set, dtype=np.int64)
             else: # if the logger is not empty, set the spad with the entries in the logger
-                print("[DEBUG] logger is not empty. Set the spad with the logger entries.")
+                # print("[DEBUG] logger is not empty. Set the spad with the logger entries.")
                 on_mem_set = self.logger.return_as_array()
         
         return on_mem_set
@@ -150,58 +151,53 @@ class MemProfile:
             self.print_stats()
         
     def do_simulation_dcache(self):
-        # Simulation
-        dynamic_counter = 0 # counter for periodic data load to spad
-        dynamic_counter_threshold = 500 # [TODO] change this value, 1M is arbitrary.
+        dynamic_counter = 0
+        dynamic_counter_threshold = 500
         
-        print("[DEBUG] print the nb, nt, vec of self.emb_dataset {} {}".format(len(self.emb_dataset), len(self.emb_dataset[0]), len(self.emb_dataset[0][0])))
+        # print("[DEBUG] print the nb, nt, vec of self.emb_dataset {} {} {}".format(len(self.emb_dataset), len(self.emb_dataset[0]), len(self.emb_dataset[0][0])))
         
-        for nb in range(len(self.emb_dataset)): # recall that self.emb_dataset[numbatch][table][batchsz*lookuppersample]
+        for nb in range(len(self.emb_dataset)):
             num_hit = 0
             num_miss = 0
             
             print("Simulation for batch {}...".format(nb))
             vectors_in_batch = list(chain.from_iterable(self.emb_dataset[nb]))
             with tqdm(total=len(vectors_in_batch), desc=f"Batch {nb}") as pbar:
-                for nt in range(len(self.emb_dataset[nb])):
-                    for vec in self.emb_dataset[nb][nt]: #for vec in range(len(self.emb_dataset[nb][nt])):
-                        # print("[DEBUG] vec: {}".format(vec))
-                        # if vec is in self.on_mem, num_hit++, else, num_miss++
-                        if vec in self.on_mem:
-                            num_hit += 1
-                        else:
-                            num_miss += 1
-                        # num_hit += int(np.isin(vec, self.on_mem))
-                        # num_miss += int(~np.isin(vec, self.on_mem))
-                        
-                        if not self.logger.search_and_access(vec): # logger miss
-                            self.logger.insert_node(vec)
-                        
-                        dynamic_counter += 1
-                        # print("[DEBUG] dynamic_counter: {}".format(dynamic_counter))
-                        
-                        if dynamic_counter == dynamic_counter_threshold:
-                            self.on_mem = self.set_spad()
-                            dynamic_counter = 0
-                        
-                        pbar.update(1)
+                for vec in vectors_in_batch:
+                    # Check cache hit or miss
+                    is_hit = vec in np.asarray(self.on_mem)
+                    if is_hit:
+                        num_hit += 1
+                    else:
+                        num_miss += 1
+                    
+                    # Update the logger
+                    if not self.logger.search_and_access(vec):
+                        self.logger.insert_node(vec)
+                    
+                    # periodically update the spad
+                    dynamic_counter += 1
+                    if dynamic_counter == dynamic_counter_threshold:
+                        self.on_mem = self.set_spad()
+                        dynamic_counter = 0
+                    
+                    pbar.update(1)
             
-            self.access_results.append([num_hit, num_miss]) # add the results for each batch
-            print("[DEBUG] result appended for batch {}".format(nb))
-        print("[DEBUG] len access_results1: {}".format(len(self.access_results)))
-            
+            self.access_results.append([num_hit, num_miss])
+            # print("[DEBUG] result appended for batch {}".format(nb))
+        
         print("Simulation Done")
         self.print_stats()
         
     def print_stats(self):
-        print("[DEBUG] len access_results2: {}".format(len(self.access_results)))
+        # print("[DEBUG] len access_results2: {}".format(len(self.access_results)))
         total_hits = 0
         total_miss = 0
         for i in range(len(self.access_results)):
             total_hits += self.access_results[i][0]
             total_miss += self.access_results[i][1]
         total_hit_ratio = total_hits / (total_hits + total_miss)
-        print("[DEBUG] len access_results3: {}".format(len(self.access_results)))
+        # print("[DEBUG] len access_results3: {}".format(len(self.access_results)))
         content = [
             f"Total hit ratio: {total_hit_ratio:.4f}",
             f"Total accesses: {total_hits+total_miss}",
