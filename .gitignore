@@ -10,6 +10,7 @@ EVASim/run_sim_test_cpp.sh
 # EVASim/run_sim_tf.sh
 # EVASim/run_sim_vdb.sh
 EVASim/src/ongoing_cpp
+EVASim/datasets/profiled_datasets
 
 # rep_figures
 

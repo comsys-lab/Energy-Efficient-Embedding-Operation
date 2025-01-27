@@ -1,26 +1,41 @@
 #!/bin/bash
 
 # Check if correct number of arguments is provided
-if [ "$#" -ne 10 ]; then
-    echo "Usage: $0 <dataset_name> <num_emb> <num_batch> <num_table> <batch_sz> <lookup_per_table> <emb_dim> <mem_gran> <n_format> <rows_per_table>"
-    exit 1
-fi
+# if [ "$#" -ne 10 ]; then
+#     echo "Usage: $0 <dataset_name> <num_emb> <num_batch> <num_table> <batch_sz> <lookup_per_table> <emb_dim> <mem_gran> <n_format> <rows_per_table>"
+#     exit 1
+# fi
 
 # Set variables with absolute path
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-DATASET_NAME=$1
-NUM_EMB=$2
-NUM_BATCH=$3
-NUM_TABLE=$4
-BATCH_SZ=$5
-LOOKUP_PER_TABLE=$6
-EMB_DIM=$7
-MEM_GRAN=$8
-N_FORMAT=$9
-ROWS_PER_TABLE=${10}
+
+# argument
+# DATASET_NAME=$1
+# NUM_EMB=$2
+# NUM_BATCH=$3
+# NUM_TABLE=$4
+# BATCH_SZ=$5
+# LOOKUP_PER_TABLE=$6
+# EMB_DIM=$7
+# MEM_GRAN=$8
+# N_FORMAT=$9
+# ROWS_PER_TABLE=${10}
+
+# VDB
+DATASET_NAME="vectordb/deep250m_train_10m"
+NUM_EMB=400000
+NUM_BATCH=1
+NUM_TABLE=1
+BATCH_SZ=1
+LOOKUP_PER_TABLE=10000000
+EMB_DIM=96
+MEM_GRAN=128
+N_FORMAT=4
+ROWS_PER_TABLE=250000000
+
 
 # Convert input filename format (replace '-' with '/')
-PROCESSED_FILENAME=$(echo $1 | tr '-' '/')
+PROCESSED_FILENAME=$(echo $DATASET_NAME | tr '-' '/')
 DATASET_PATH="${SCRIPT_DIR}/datasets/${PROCESSED_FILENAME}.txt"
 
 # Remove existing executable if it exists
