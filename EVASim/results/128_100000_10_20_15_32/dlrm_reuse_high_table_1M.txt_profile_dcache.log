@@ -11,7 +11,7 @@
 ║ Lookups per sample: 20                                                                             ║
 ║ Embedding Dimension 128                                                                            ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-(Time elapsed(s) in model and data gen:   0.551515sec)
+(Time elapsed(s) in model and data gen:   0.590940sec)
 [DEBUG] addr_trace shape: (15, 10, 640)
 Converting vector indices into virtual memory addresses for batch 0...
 Converting vector indices into virtual memory addresses for batch 1...
@@ -28,7 +28,7 @@ Converting vector indices into virtual memory addresses for batch 11...
 Converting vector indices into virtual memory addresses for batch 12...
 Converting vector indices into virtual memory addresses for batch 13...
 Converting vector indices into virtual memory addresses for batch 14...
-(Time elapsed(s) in address generation:   0.299449sec)
+(Time elapsed(s) in address generation:   0.309151sec)
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 On-Chip Memory Configuration 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
@@ -40,238 +40,27 @@ Converting vector indices into virtual memory addresses for batch 14...
 [DEBUG] logger can contain 1048576.0 vectors
 [DEBUG] logger is empty. Set the spad with the naive method.
 on mem data structure size: 7812.61 KB
-(Time elapsed(s) in create memory structure:   3.207695sec)
+(Time elapsed(s) in create memory structure:   2.734910sec)
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 Simulation Start 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-[DEBUG] print the nb, nt, vec of self.emb_dataset 15 10
 Simulation for batch 0...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 0
 Simulation for batch 1...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 1
 Simulation for batch 2...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 2
 Simulation for batch 3...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 3
 Simulation for batch 4...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 4
 Simulation for batch 5...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 5
 Simulation for batch 6...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 6
 Simulation for batch 7...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 7
 Simulation for batch 8...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 8
 Simulation for batch 9...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 9
 Simulation for batch 10...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 10
 Simulation for batch 11...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 11
 Simulation for batch 12...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 12
 Simulation for batch 13...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 13
 Simulation for batch 14...
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] logger is not empty. Set the spad with the logger entries.
-[DEBUG] result appended for batch 14
-[DEBUG] len access_results1: 15
 Simulation Done
-[DEBUG] len access_results2: 15
-[DEBUG] len access_results3: 15
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 Simulation Results 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
@@ -298,4 +87,4 @@ Simulation Done
 ║ [Batch 13] hit ratio: 0.5011 accesses: 6400 hits: 3207 misses: 3193                                ║
 ║ [Batch 14] hit ratio: 0.5605 accesses: 6400 hits: 3587 misses: 2813                                ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-(Time elapsed(s) in do simulation: 4325.461355sec)
+(Time elapsed(s) in do simulation:  17.988721sec)

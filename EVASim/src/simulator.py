@@ -160,19 +160,7 @@ if __name__ == "__main__":
     # f.close()
     
     # exit()
-    
-    #-------------------------------------------------------------------
-    
-    ##############################################
-    ### This is only for Static_Profile config ###
-    ##############################################
-    
-    # if mem_config_file == "static_profile":
-    #     helper.set_timer()
-    #     reqgen.index_to_addr()
-    #     emb_dataset = reqgen.addr_trace
-    #     helper.end_timer("address generation")
-    
+
     #-------------------------------------------------------------------
     
     ###############################
