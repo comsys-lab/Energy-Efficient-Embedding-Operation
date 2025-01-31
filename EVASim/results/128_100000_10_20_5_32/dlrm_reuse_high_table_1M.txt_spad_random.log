@@ -4,43 +4,32 @@
 ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
 ║ Dataset: /workspace/EVASim/datasets/dlrm/reuse_high_table_1M.txt                                   ║
 ║ Numeric format: 8 bits                                                                             ║
-║ Num batches: 15                                                                                    ║
+║ Num batches: 5                                                                                     ║
 ║ Num tables: 10                                                                                     ║
 ║ Batch Size (samples per batch): 32                                                                 ║
 ║ Vectors per table: 100000                                                                          ║
 ║ Lookups per sample: 20                                                                             ║
 ║ Embedding Dimension 128                                                                            ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-(Time elapsed(s) in model and data gen:   0.590940sec)
-[DEBUG] addr_trace shape: (15, 10, 640)
+(Time elapsed(s) in model and data gen:   0.569027sec)
+[DEBUG] addr_trace shape: (5, 10, 640)
 Converting vector indices into virtual memory addresses for batch 0...
 Converting vector indices into virtual memory addresses for batch 1...
 Converting vector indices into virtual memory addresses for batch 2...
 Converting vector indices into virtual memory addresses for batch 3...
 Converting vector indices into virtual memory addresses for batch 4...
-Converting vector indices into virtual memory addresses for batch 5...
-Converting vector indices into virtual memory addresses for batch 6...
-Converting vector indices into virtual memory addresses for batch 7...
-Converting vector indices into virtual memory addresses for batch 8...
-Converting vector indices into virtual memory addresses for batch 9...
-Converting vector indices into virtual memory addresses for batch 10...
-Converting vector indices into virtual memory addresses for batch 11...
-Converting vector indices into virtual memory addresses for batch 12...
-Converting vector indices into virtual memory addresses for batch 13...
-Converting vector indices into virtual memory addresses for batch 14...
-(Time elapsed(s) in address generation:   0.309151sec)
+(Time elapsed(s) in address generation:   0.098484sec)
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 On-Chip Memory Configuration 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
 ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
 ║ Memory size: 134217728 B (128 MB)                                                                  ║
-║ Memory type: profile                                                                               ║
-║ Memory policy: profile_dynamic_cache                                                               ║
+║ Memory type: spad                                                                                  ║
+║ Memory policy: spad_random                                                                         ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-[DEBUG] logger can contain 1048576.0 vectors
-[DEBUG] logger is empty. Set the spad with the naive method.
+[DEBUG] on_mem has 1000000 elements.
 on mem data structure size: 7812.61 KB
-(Time elapsed(s) in create memory structure:   2.734910sec)
+(Time elapsed(s) in create memory structure:   3.140669sec)
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 Simulation Start 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
@@ -50,41 +39,21 @@ Simulation for batch 1...
 Simulation for batch 2...
 Simulation for batch 3...
 Simulation for batch 4...
-Simulation for batch 5...
-Simulation for batch 6...
-Simulation for batch 7...
-Simulation for batch 8...
-Simulation for batch 9...
-Simulation for batch 10...
-Simulation for batch 11...
-Simulation for batch 12...
-Simulation for batch 13...
-Simulation for batch 14...
 Simulation Done
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 Simulation Results 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
 ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
-║ Total hit ratio: 0.3847                                                                            ║
-║ Total accesses: 96000                                                                              ║
-║ Total hits: 36928                                                                                  ║
-║ Total misses: 59072                                                                                ║
+║ Total hit ratio: 1.0000                                                                            ║
+║ Total accesses: 32000                                                                              ║
+║ Total hits: 32000                                                                                  ║
+║ Total misses: 0                                                                                    ║
 ║                                                                                                    ║
 ║ Per batch results:                                                                                 ║
-║ [Batch 0] hit ratio: 0.3181 accesses: 6400 hits: 2036 misses: 4364                                 ║
-║ [Batch 1] hit ratio: 0.2867 accesses: 6400 hits: 1835 misses: 4565                                 ║
-║ [Batch 2] hit ratio: 0.3206 accesses: 6400 hits: 2052 misses: 4348                                 ║
-║ [Batch 3] hit ratio: 0.3488 accesses: 6400 hits: 2232 misses: 4168                                 ║
-║ [Batch 4] hit ratio: 0.3891 accesses: 6400 hits: 2490 misses: 3910                                 ║
-║ [Batch 5] hit ratio: 0.3894 accesses: 6400 hits: 2492 misses: 3908                                 ║
-║ [Batch 6] hit ratio: 0.3967 accesses: 6400 hits: 2539 misses: 3861                                 ║
-║ [Batch 7] hit ratio: 0.4353 accesses: 6400 hits: 2786 misses: 3614                                 ║
-║ [Batch 8] hit ratio: 0.4608 accesses: 6400 hits: 2949 misses: 3451                                 ║
-║ [Batch 9] hit ratio: 0.4550 accesses: 6400 hits: 2912 misses: 3488                                 ║
-║ [Batch 10] hit ratio: 0.1403 accesses: 6400 hits: 898 misses: 5502                                 ║
-║ [Batch 11] hit ratio: 0.3269 accesses: 6400 hits: 2092 misses: 4308                                ║
-║ [Batch 12] hit ratio: 0.4408 accesses: 6400 hits: 2821 misses: 3579                                ║
-║ [Batch 13] hit ratio: 0.5011 accesses: 6400 hits: 3207 misses: 3193                                ║
-║ [Batch 14] hit ratio: 0.5605 accesses: 6400 hits: 3587 misses: 2813                                ║
+║ [Batch 0] hit ratio: 1.0000 accesses: 6400 hits: 6400 misses: 0                                    ║
+║ [Batch 1] hit ratio: 1.0000 accesses: 6400 hits: 6400 misses: 0                                    ║
+║ [Batch 2] hit ratio: 1.0000 accesses: 6400 hits: 6400 misses: 0                                    ║
+║ [Batch 3] hit ratio: 1.0000 accesses: 6400 hits: 6400 misses: 0                                    ║
+║ [Batch 4] hit ratio: 1.0000 accesses: 6400 hits: 6400 misses: 0                                    ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-(Time elapsed(s) in do simulation:  17.988721sec)
+(Time elapsed(s) in do simulation:   0.782434sec)

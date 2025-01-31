@@ -50,6 +50,8 @@ class ReqGenerator:
         self.num_indices_per_lookup = num_indices_per_lookup
         self.mem_gran = mem_gran
         
+        self.access_per_vector = np.ceil(self.emb_dim * self.n_format_byte / self.mem_gran).astype(np.int32)
+        
     def open_gen(self, name, rows):
         with open(name) as f:
             idx = list(filter(lambda x: x < rows, map(int, f.readlines())))
@@ -103,8 +105,7 @@ class ReqGenerator:
     def index_to_addr(self):
         # init addr_trace array
         self.addr_trace = [
-            [np.ones(int(len(self.lS_i[0][0]) * self.emb_dim * self.n_format_byte / self.mem_gran), 
-                     dtype=np.int64) 
+            [np.ones(int(len(self.lS_i[0][0]) * self.access_per_vector), dtype=np.int64) 
              for _ in range(len(self.lS_i[0]))] 
             for _ in range(self.nbatches)
         ]
@@ -116,10 +117,10 @@ class ReqGenerator:
         rows_per_table = ln_emb[0]
         for nb in range(len(self.lS_i)): # recall that self.lS_i[numbatch][table][batchsz*lookuppersample]
             print("Converting vector indices into virtual memory addresses for batch {}...".format(nb))
-            with tqdm(total=len(self.lS_i[nb])*len(self.lS_i[nb][0])*int(self.emb_dim * self.n_format_byte / self.mem_gran), desc="Processing") as pbar:
+            with tqdm(total=len(self.lS_i[nb])*len(self.lS_i[nb][0])*self.access_per_vector, desc="Processing") as pbar:
                 for nt in range(len(self.lS_i[nb])):
                     for vec in range(len(self.lS_i[nb][nt])):
-                        for dim in range(int(self.emb_dim * self.n_format_byte / self.mem_gran)):
+                        for dim in range(self.access_per_vector):
                             tbl_bits = nt << int(np.log2(rows_per_table) + np.log2(self.emb_dim))
                             vec_idx = self.lS_i[nb][nt][vec] << int(np.log2(self.emb_dim * self.n_format_byte))
                             dim_bits = self.mem_gran * dim

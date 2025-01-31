@@ -100,7 +100,7 @@ if __name__ == "__main__":
                     # cache_line_size = int(value.strip())
                     cache_line_size = mem_gran
         cache_config = [cache_way, cache_line_size]    
-
+    
     # these are for convenience...
     emb_config = np.fromstring(embsize, dtype=int, sep="-")
     emb_config = np.asarray(emb_config, dtype=np.int32)
@@ -171,14 +171,15 @@ if __name__ == "__main__":
     
     # Create mem_struct
     if mem_type == "spad":
-        mem_struct = MemSpad(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran)
+        mem_struct = MemSpad(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, n_format_byte)
     elif mem_type == "cache":
-        mem_struct = MemCache(mem_size, mem_type, cache_config, emb_dim, emb_dataset)
+        mem_struct = MemCache(mem_size, mem_type, cache_config, emb_dim, emb_dataset, n_format_byte)
     elif mem_type == "profile":
         # generate the profiled dataset path by replacing the folder name with 'profiled_datasets'
         last_slash = fname.rfind('/')
         second_last_slash = fname[:last_slash].rfind('/')
         profiled_path = fname[:second_last_slash+1] + 'profiled_datasets' + fname[last_slash:]
+        # print("[DEBUG] argument of mem_struct: {}, {}, {}, {}, {}, {}, {}, {}".format(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, n_format_byte, profiled_path))
         mem_struct = MemProfile(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, n_format_byte, profiled_path)
         
     mem_struct.set_policy(mem_policy)

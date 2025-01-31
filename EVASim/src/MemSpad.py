@@ -8,10 +8,11 @@ from tqdm import tqdm
 from Helper import print_styled_header, print_styled_box
 
 class MemSpad:
-    def __init__(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran):
+    def __init__(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, n_format_byte):
         self.mem_size = 0 ### KB
         self.mem_type = "init"
         self.mem_gran = 0
+        self.n_format_byte = 0
         self.on_mem = np.ones(1)
         self.spad_size = 0
         self.batch_counter = 0 ### this is only for spad_oracle
@@ -25,21 +26,23 @@ class MemSpad:
         
         self.access_results = []
                
-        self.set_params(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran)
+        self.set_params(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, n_format_byte)
         
-    def set_params(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran):
+    def set_params(self, mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, n_format_byte):
         self.mem_size = mem_size * 1024 # KB -> Byte
         self.mem_type = mem_type # spad or cache
         self.mem_gran = mem_gran
+        self.n_format_byte = n_format_byte
                 
         ### below configs are related to the dataset
         self.emb_dim = emb_dim # this is for spad
         self.emb_dataset = emb_dataset # emb_dataset[numbatch][table][batchsz*lookuppersample]
         self.num_tables = len(self.emb_dataset[0])
         self.vectors_per_table = vectors_per_table
-        self.access_per_vector = int(self.emb_dim / self.mem_gran)
+        # self.access_per_vector = np.ceil(self.emb_dim / self.mem_gran).astype(np.int32)
+        self.access_per_vector = np.ceil(self.emb_dim * self.n_format_byte / self.mem_gran).astype(np.int32)
         
-        self.spad_size = int(self.mem_size / self.emb_dim * self.access_per_vector)
+        self.spad_size = np.floor(self.mem_size / self.mem_gran).astype(np.int32)
         
     def set_policy(self, policy):
         if (self.mem_type == "spad" and not policy.startswith("spad_")):
@@ -72,7 +75,7 @@ class MemSpad:
                     for v_i in range(self.vectors_per_table):
                         for d_i in range(self.access_per_vector):
                             tbl_bits = t_i << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
-                            vec_idx = v_i << int(np.log2(self.emb_dim))
+                            vec_idx = v_i << int(np.log2(self.emb_dim * self.n_format_byte))
                             dim_bits = self.mem_gran * d_i
                             this_addr = tbl_bits + vec_idx + dim_bits
                             on_mem_set.append(this_addr)
@@ -89,6 +92,7 @@ class MemSpad:
             on_mem_set = np.asarray(on_mem_set, dtype=np.int64)
         
         elif self.mem_policy == "spad_random":
+            print("[DEBUG] self.access_per_vector: {}".format(self.access_per_vector))
             on_mem_set = []
             ### Randomly store the data from the available address space until the on-chip memory becomes full.            
             avail_space = list(itertools.product(range(self.num_tables), range(self.vectors_per_table)))
@@ -100,7 +104,7 @@ class MemSpad:
                     for d_i in range(self.access_per_vector):
                         # address generation
                         tbl_bits = pair[0] << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
-                        vec_idx = pair[1] << int(np.log2(self.emb_dim))
+                        vec_idx = pair[1] << int(np.log2(self.emb_dim * self.n_format_byte))
                         dim_bits = self.mem_gran * d_i
                         this_addr = tbl_bits + vec_idx + dim_bits
                         on_mem_set.append(this_addr)

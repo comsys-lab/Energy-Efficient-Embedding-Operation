@@ -9,7 +9,7 @@ from tqdm import tqdm
 from Helper import print_styled_header, print_styled_box
 
 class MemCache:
-    def __init__(self, mem_size, mem_type, cache_config, emb_dim, emb_dataset):
+    def __init__(self, mem_size, mem_type, cache_config, emb_dim, emb_dataset, n_format_byte):
         self.mem_size = 0 # KB
         self.mem_type = "init"
         self.mem_policy = "init"
@@ -27,12 +27,13 @@ class MemCache:
         self.cache_line_size = 0
         self.cache_set = 0
         self.cache_tag_bits = 0
+        self.n_format_byte = 0
         
         self.access_results = []
                
-        self.set_params(mem_size, mem_type, cache_config, emb_dim, emb_dataset)
+        self.set_params(mem_size, mem_type, cache_config, emb_dim, emb_dataset, n_format_byte)
         
-    def set_params(self, mem_size, mem_type, cache_config, emb_dim, emb_dataset):
+    def set_params(self, mem_size, mem_type, cache_config, emb_dim, emb_dataset, n_format_byte):
         self.mem_size = mem_size * 1024 # KB -> Byte
         self.mem_type = mem_type # spad or cache
         
@@ -47,6 +48,7 @@ class MemCache:
         self.cache_index_bits = int(np.log2(self.cache_set))
         self.cache_offset_bits = int(np.log2(self.cache_line_size)) # byte offset
         self.cache_tag_bits = 48 - self.cache_index_bits - self.cache_offset_bits # 48 bits - index bits - byte offset
+        self.n_format_byte = n_format_byte
         
     def set_policy(self, policy):
         if (self.mem_type == "cache" and not policy.startswith("cache_")):

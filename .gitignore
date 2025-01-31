@@ -8,7 +8,7 @@ EVASim/multi_run_sim.sh
 EVASim/temp_run_sim.sh
 EVASim/run_sim_test_cpp.sh
 # EVASim/run_sim_tf.sh
-# EVASim/run_sim_vdb.sh
+EVASim/run_sim_vdb_2.sh
 EVASim/src/ongoing_cpp
 EVASim/datasets/profiled_datasets
 

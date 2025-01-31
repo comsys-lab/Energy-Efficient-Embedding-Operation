@@ -38,19 +38,22 @@ class MemProfile:
         self.mem_size = mem_size * 1024 # KB -> Byte
         self.mem_type = mem_type # spad or cache
         self.mem_gran = mem_gran
+        
+        ### this is for profile_dynamic_cache
+        self.n_format_byte = n_format_byte
                 
         ### below configs are related to the dataset
         self.emb_dim = emb_dim # this is for spad
         self.emb_dataset = emb_dataset # emb_dataset[numbatch][table][batchsz*lookuppersample]
         self.num_tables = len(self.emb_dataset[0])
         self.vectors_per_table = vectors_per_table
-        self.access_per_vector = int(self.emb_dim / self.mem_gran) # TODO: delete access_per_vector if unnecessary
+        # self.access_per_vector = np.ceil(self.emb_dim / self.mem_gran).astype(np.int32)  # Convert to 32-bit integer
+        self.access_per_vector = np.ceil(self.emb_dim * self.n_format_byte / self.mem_gran).astype(np.int32)
+        # print("[DEBUG] emb_dim: {} n_format_byte: {} mem_gran: {}".format(self.emb_dim, self.n_format_byte, self.mem_gran))
+        # print("[DEBUG] access_per_vector: {} type of access_per_vector: {} ".format(self.access_per_vector, type(self.access_per_vector)))
         self.profiled_path = profiled_path
-            
-        ### this is for profile_dynamic_cache
-        self.n_format_byte = n_format_byte
         
-        self.spad_size = int(self.mem_size / self.emb_dim * self.access_per_vector)
+        self.spad_size = np.floor(self.mem_size / self.mem_gran).astype(np.int32)
         
     def set_policy(self, policy):
         if (self.mem_type == "spad" and not policy.startswith("spad_")):
@@ -71,9 +74,11 @@ class MemProfile:
     def create_on_mem(self):
         ### create on-chip memory data structure (spad or cache)        
         if self.mem_policy == "profile_dynamic_cache":            
-            self.logger_size = int((self.mem_size / self.emb_dim) / self.n_format_byte) * self.access_per_vector # multiply access_per_vector to enable the vector-level LRU cache simulation
+            # self.logger_size = int((self.mem_size / self.emb_dim) / self.n_format_byte) * self.access_per_vector # multiply access_per_vector to enable the vector-level LRU cache simulation
+            self.logger_size = self.spad_size # access-level logging -> after all, the logger should be able to contain all the entries in the spad (vector-level logging is meaningless)
             self.logger = LRUCache(self.logger_size) # it simulates fully associative LRU cache
-            print("[DEBUG] logger can contain {} vectors".format(self.logger_size / self.access_per_vector))
+            # print the number of vectors that the logger can contain assuming that logger performs vector-level logging in real implementation (not in this simulation)
+            print("[DEBUG] logger can contain {} vectors".format(int(self.logger_size / self.access_per_vector)))
         self.on_mem = self.set_spad()
     
     def set_spad(self):
@@ -96,7 +101,7 @@ class MemProfile:
             print("[DEBUG] on_mem[-1]: {}".format(on_mem_set[-1]))
             
         elif self.mem_policy == "profile_dynamic_cache":
-            if self.logger.is_empty(): # head.addr 대신 is_empty() 사용
+            if self.logger.is_empty(): 
                 print("[DEBUG] logger is empty. Set the spad with the naive method.")
                 counter = 0
                 break_flag = False
@@ -106,7 +111,7 @@ class MemProfile:
                         for v_i in range(self.vectors_per_table):
                             for d_i in range(self.access_per_vector):
                                 tbl_bits = t_i << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
-                                vec_idx = v_i << int(np.log2(self.emb_dim))
+                                vec_idx = v_i << int(np.log2(self.emb_dim * self.n_format_byte))
                                 dim_bits = self.mem_gran * d_i
                                 this_addr = tbl_bits + vec_idx + dim_bits
                                 on_mem_set.append(this_addr)
