@@ -10,7 +10,7 @@ EVASim/run_sim_test_cpp.sh
 # EVASim/run_sim_tf.sh
 EVASim/run_sim_vdb_2.sh
 EVASim/src/ongoing_cpp
-EVASim/datasets/profiled_datasets
+# EVASim/datasets/profiled_datasets
 EVASim/datasets/vectordb/deep250m_train_10m.txt
 EVASim/datasets/vectordb/spacev250m_train_10m.txt
 EVASim/datasets/vectordb/deep250m_train_1B.txt
