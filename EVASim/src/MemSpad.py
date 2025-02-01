@@ -74,8 +74,9 @@ class MemSpad:
                 for t_i in range(self.num_tables):
                     for v_i in range(self.vectors_per_table):
                         for d_i in range(self.access_per_vector):
-                            tbl_bits = t_i << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
-                            vec_idx = v_i << int(np.log2(self.emb_dim * self.n_format_byte))
+                            bytes_per_vec = (self.emb_dim * self.n_format_byte - 1).bit_length()
+                            tbl_bits = t_i << int(np.log2(self.vectors_per_table) + bytes_per_vec)
+                            vec_idx = v_i << bytes_per_vec
                             dim_bits = self.mem_gran * d_i
                             this_addr = tbl_bits + vec_idx + dim_bits
                             on_mem_set.append(this_addr)
@@ -103,8 +104,9 @@ class MemSpad:
                 for pair in avail_space:
                     for d_i in range(self.access_per_vector):
                         # address generation
-                        tbl_bits = pair[0] << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
-                        vec_idx = pair[1] << int(np.log2(self.emb_dim * self.n_format_byte))
+                        bytes_per_vec = (self.emb_dim * self.n_format_byte - 1).bit_length()
+                        tbl_bits = pair[0] << int(np.log2(self.vectors_per_table) + bytes_per_vec)
+                        vec_idx = pair[1] << bytes_per_vec
                         dim_bits = self.mem_gran * d_i
                         this_addr = tbl_bits + vec_idx + dim_bits
                         on_mem_set.append(this_addr)

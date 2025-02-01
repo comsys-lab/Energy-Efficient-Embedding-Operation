@@ -121,8 +121,9 @@ class ReqGenerator:
                 for nt in range(len(self.lS_i[nb])):
                     for vec in range(len(self.lS_i[nb][nt])):
                         for dim in range(self.access_per_vector):
-                            tbl_bits = nt << int(np.log2(rows_per_table) + np.log2(self.emb_dim))
-                            vec_idx = self.lS_i[nb][nt][vec] << int(np.log2(self.emb_dim * self.n_format_byte))
+                            bytes_per_vec = (self.emb_dim * self.n_format_byte - 1).bit_length()
+                            tbl_bits = nt << int(np.log2(rows_per_table) + bytes_per_vec)                            
+                            vec_idx = self.lS_i[nb][nt][vec] << bytes_per_vec
                             dim_bits = self.mem_gran * dim
                             this_addr = tbl_bits + vec_idx + dim_bits
                             

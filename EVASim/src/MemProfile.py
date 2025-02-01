@@ -54,7 +54,10 @@ class MemProfile:
         self.profiled_path = profiled_path
         
         self.spad_size = np.floor(self.mem_size / self.mem_gran).astype(np.int32)
-        
+    
+    def set_index_trace(self, index_trace):
+        self.index_trace = index_trace # lS_i
+    
     def set_policy(self, policy):
         if (self.mem_type == "spad" and not policy.startswith("spad_")):
             assert False, f"Invalid policy: '{policy}' for mem_type: '{self.mem_type}'"
@@ -79,6 +82,10 @@ class MemProfile:
             self.logger = LRUCache(self.logger_size) # it simulates fully associative LRU cache
             # print the number of vectors that the logger can contain assuming that logger performs vector-level logging in real implementation (not in this simulation)
             print("[DEBUG] logger can contain {} vectors".format(int(self.logger_size / self.access_per_vector)))
+        elif self.mem_policy == "profile_dynamic_count":
+            # create a counter array, which has the same dimension as the emb_dataset
+            self.counter_arr = np.zeros((len(self.emb_dataset), len(self.emb_dataset[0]), len(self.emb_dataset[0][0])), dtype=np.int64)
+            self.counter_set = 0
         self.on_mem = self.set_spad()
     
     def set_spad(self):
@@ -110,8 +117,9 @@ class MemProfile:
                     for t_i in range(self.num_tables):
                         for v_i in range(self.vectors_per_table):
                             for d_i in range(self.access_per_vector):
-                                tbl_bits = t_i << int(np.log2(self.vectors_per_table) + np.log2(self.emb_dim))
-                                vec_idx = v_i << int(np.log2(self.emb_dim * self.n_format_byte))
+                                bytes_per_vec = (self.emb_dim * self.n_format_byte - 1).bit_length()
+                                tbl_bits = t_i << int(np.log2(self.vectors_per_table) + bytes_per_vec)
+                                vec_idx = v_i << bytes_per_vec
                                 dim_bits = self.mem_gran * d_i
                                 this_addr = tbl_bits + vec_idx + dim_bits
                                 on_mem_set.append(this_addr)
@@ -127,7 +135,55 @@ class MemProfile:
                 on_mem_set = np.asarray(on_mem_set, dtype=np.int64)
             else: # if the logger is not empty, set the spad with the entries in the logger
                 # print("[DEBUG] logger is not empty. Set the spad with the logger entries.")
-                on_mem_set = self.logger.return_as_array()
+                # slice the logger to the size of self.spad_size
+                on_mem_set = self.logger.return_as_array()[:self.spad_size]
+        
+        elif self.mem_policy == "profile_dynamic_count":
+            if self.counter_set == 0: 
+                print("[DEBUG] counter array is empty. Set the spad with the naive method.")
+                counter = 0
+                break_flag = False
+                
+                with tqdm(total=self.spad_size, desc="Setting spad") as pbar:
+                    for t_i in range(self.num_tables):
+                        for v_i in range(self.vectors_per_table):
+                            for d_i in range(self.access_per_vector):
+                                bytes_per_vec = (self.emb_dim * self.n_format_byte - 1).bit_length()
+                                tbl_bits = t_i << int(np.log2(self.vectors_per_table) + bytes_per_vec)
+                                vec_idx = v_i << bytes_per_vec
+                                dim_bits = self.mem_gran * d_i
+                                this_addr = tbl_bits + vec_idx + dim_bits
+                                on_mem_set.append(this_addr)
+                                counter = counter + 1
+                                if counter==self.spad_size:
+                                    break_flag = True
+                                    break
+                                pbar.update(1)
+                            if break_flag:
+                                break
+                        if break_flag:
+                            break
+                on_mem_set = np.asarray(on_mem_set, dtype=np.int64)
+            else: # if the counter is not empty, sort the counter array, and then set the spad with the entries in the logger
+                temp_on_mem = []
+                # sort the INDICES of counter array in descending order (do not change the original counter_arr) and slice the array to the size of self.spad_size/self.access_per_vector, then store in a new array
+                sorted_indices = np.argsort(self.counter_arr.flatten())[::-1][:int(self.spad_size/self.access_per_vector)]
+                # Convert sorted_indices back to indices considering emb_dataset structure
+                sorted_indices = np.unravel_index(sorted_indices, self.counter_arr.shape)                
+                # Create address (this_addr) for each index in sorted_indices and store in temp_on_mem
+                for i in range(len(sorted_indices[0])):
+                    b_i = sorted_indices[0][i] # batch index, not used
+                    t_i = sorted_indices[1][i]
+                    v_i = sorted_indices[2][i]
+                    for j in range(self.access_per_vector):
+                        bytes_per_vec = (self.emb_dim * self.n_format_byte - 1).bit_length()
+                        tbl_bits = t_i << int(np.log2(self.vectors_per_table) + bytes_per_vec)
+                        vec_idx = v_i << bytes_per_vec
+                        dim_bits = self.mem_gran * j
+                        this_addr = tbl_bits + vec_idx + dim_bits
+                        temp_on_mem.append(this_addr)                
+                                
+                on_mem_set = np.asarray(temp_on_mem, dtype=np.int64)
         
         return on_mem_set
     
@@ -136,6 +192,8 @@ class MemProfile:
         self.print_sim()
         if self.mem_policy == "profile_dynamic_cache":
             self.do_simulation_dcache()
+        elif self.mem_policy == "profile_dynamic_count":
+            self.do_simulation_dcount()
         else:
             for nb in range(len(self.emb_dataset)): # recall that self.emb_dataset[numbatch][table][batchsz*lookuppersample]
                 num_hit = 0
@@ -176,9 +234,13 @@ class MemProfile:
                     else:
                         num_miss += 1
                     
+                    print("[DEBUG] Processing node {}...".format(vec))
                     # Update the logger
                     if not self.logger.search_and_access(vec):
+                        print("[DEBUG] Miss and Inserting node {} to the logger".format(vec))
                         self.logger.insert_node(vec)
+                    else:
+                        print("[DEBUG] Hit node {} in the logger".format(vec))
                     
                     # periodically update the spad
                     dynamic_counter += 1
@@ -190,6 +252,41 @@ class MemProfile:
             
             self.access_results.append([num_hit, num_miss])
             # print("[DEBUG] result appended for batch {}".format(nb))
+        
+        print("Simulation Done")
+        self.print_stats()
+    
+    def do_simulation_dcount(self):
+        dynamic_counter = 0
+        dynamic_counter_threshold = 500
+        
+        for nb in range(len(self.emb_dataset)):
+            num_hit = 0
+            num_miss = 0
+            
+            print("Simulation for batch {}...".format(nb))
+            with tqdm(total=len(self.emb_dataset[nb]) * len(self.index_trace[nb][nt]), desc=f"Batch {nb}") as pbar:
+                for nt in range(len(self.emb_dataset[nb])):
+                    for vec_ind in range(len(self.index_trace[nb][nt])):
+                        # update the counter array using the index trace
+                        self.counter_arr[nb][nt][vec] += 1
+                        # simluation is addr based
+                        for dim in range(self.access_per_vector):
+                            is_hit = self.addr_trace[nb][nt][vec_ind+dim] in np.asarray(self.on_mem)
+                            if is_hit:
+                                num_hit += 1
+                            else:
+                                num_miss += 1
+                                
+                        # periodically update the spad
+                        dynamic_counter += 1
+                        if dynamic_counter == dynamic_counter_threshold:
+                            self.on_mem = self.set_spad()
+                            dynamic_counter = 0
+                            
+                        pbar.update(1)
+                
+            self.access_results.append([num_hit, num_miss])
         
         print("Simulation Done")
         self.print_stats()

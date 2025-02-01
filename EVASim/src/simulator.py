@@ -151,13 +151,13 @@ if __name__ == "__main__":
     helper.end_timer("address generation")
     
     # temporal test: store reqgen.addr_trace np array in a txt file, each element in each row in the txt file.
-    # with open("addr_trace.txt", "w") as f:
-    #     for i in range(len(reqgen.addr_trace)):
-    #         for j in range(len(reqgen.addr_trace[i])):
-    #             for k in range(len(reqgen.addr_trace[i][j])):
-    #                 f.write(str(reqgen.addr_trace[i][j][k]) + "\n")
-    #             # f.write("\n")
-    # f.close()
+    with open("addr_trace.txt", "w") as f:
+        for i in range(len(reqgen.addr_trace)):
+            for j in range(len(reqgen.addr_trace[i])):
+                for k in range(len(reqgen.addr_trace[i][j])):
+                    f.write(str(reqgen.addr_trace[i][j][k]) + "\n")
+                # f.write("\n")
+    f.close()
     
     # exit()
 
@@ -181,6 +181,8 @@ if __name__ == "__main__":
         profiled_path = fname[:second_last_slash+1] + 'profiled_datasets' + fname[last_slash:]
         # print("[DEBUG] argument of mem_struct: {}, {}, {}, {}, {}, {}, {}, {}".format(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, n_format_byte, profiled_path))
         mem_struct = MemProfile(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, n_format_byte, profiled_path)
+        if mem_policy == "profile_dynamic_count":
+            mem_struct.set_index_trace(reqgen.lS_i)
         
     mem_struct.set_policy(mem_policy)
     mem_struct.print_config()
