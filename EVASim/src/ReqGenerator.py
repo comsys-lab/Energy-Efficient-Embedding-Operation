@@ -127,7 +127,7 @@ class ReqGenerator:
                             dim_bits = self.mem_gran * dim
                             this_addr = tbl_bits + vec_idx + dim_bits
                             
-                            self.addr_trace[nb][nt][vec * int(self.emb_dim * self.n_format_byte / self.mem_gran) + dim] = this_addr
+                            self.addr_trace[nb][nt][vec * self.access_per_vector + dim] = this_addr
                             # print(this_addr)
                         
                             pbar.update(1)

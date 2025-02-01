@@ -122,6 +122,13 @@ class MemSpad:
             access_freq = access_freq.most_common()
             ### store the memory addresses in the spad
             access_freq = access_freq[:min(self.spad_size, len(access_freq))]
+            
+            # temporal test: store reqgen.addr_trace np array in a txt file, each element in each row in the txt file.
+            # with open("oracle_trace.txt", "w") as f:
+            #     for i in range(len(access_freq)):
+            #         f.write(str(access_freq[i][0]) + " " + str(access_freq[i][1]) + "\n")
+            # f.close()
+            
             on_mem_set = np.array([x[0] for x in access_freq], dtype = np.int64)
             # print(len(access_freq))
             # print(access_freq[0])

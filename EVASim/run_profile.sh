@@ -21,9 +21,22 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # N_FORMAT=$9
 # ROWS_PER_TABLE=${10}
 
+# DLRM
+# DATASET_NAME="dlrm/reuse_high_table_1M"
+# NUM_EMB=400000
+# NUM_BATCH=1
+# NUM_TABLE=512
+# BATCH_SZ=128
+# LOOKUP_PER_TABLE=170
+# EMB_DIM=256
+# MEM_GRAN=128
+# N_FORMAT=1
+# ROWS_PER_TABLE=1000000
+
+
 # VDB
 DATASET_NAME="vectordb/deep250m_train_10m"
-NUM_EMB=400000
+NUM_EMB=1000000
 NUM_BATCH=1
 NUM_TABLE=1
 BATCH_SZ=1
@@ -32,7 +45,6 @@ EMB_DIM=96
 MEM_GRAN=128
 N_FORMAT=4
 ROWS_PER_TABLE=250000000
-
 
 # Convert input filename format (replace '-' with '/')
 PROCESSED_FILENAME=$(echo $DATASET_NAME | tr '-' '/')

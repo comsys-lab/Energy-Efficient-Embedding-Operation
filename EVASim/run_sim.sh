@@ -9,8 +9,8 @@ mkdir -p $OUT
 
 ### dataset ###
 data_path_dir="$(pwd)/datasets/"
-dataset_list=("dlrm/reuse_high_table_1M.txt" "dlrm/reuse_medium_table_1M.txt" "dlrm/reuse_low_table_1M.txt")
-# dataset_list=("dlrm/reuse_high_table_1M.txt")
+# dataset_list=("dlrm/reuse_high_table_1M.txt" "dlrm/reuse_medium_table_1M.txt" "dlrm/reuse_low_table_1M.txt")
+dataset_list=("dlrm/reuse_high_table_1M.txt")
 ###############
 
 ### simulation parameters ###
@@ -21,7 +21,7 @@ EMB_TBL=512
 EMB_POOL=170
 EMBS="$EMB_DIM,$EMB_ROW,$EMB_TBL,$EMB_POOL"
 
-NUM_BATCH=3
+NUM_BATCH=1
 BS=128
 ##############################
 
