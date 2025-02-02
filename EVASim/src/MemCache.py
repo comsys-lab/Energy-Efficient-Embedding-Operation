@@ -45,8 +45,8 @@ class MemCache:
         self.cache_way = cache_config[0] # cache_config = [way, line size]
         self.cache_line_size = cache_config[1]
         self.cache_set = int(self.mem_size / self.cache_line_size / self.cache_way)
-        self.cache_index_bits = int(np.log2(self.cache_set))
-        self.cache_offset_bits = int(np.log2(self.cache_line_size)) # byte offset
+        self.cache_index_bits = int(np.log2(self.cache_set-1)+1)
+        self.cache_offset_bits = int(np.log2(self.cache_line_size-1)+1) # byte offset
         self.cache_tag_bits = 48 - self.cache_index_bits - self.cache_offset_bits # 48 bits - index bits - byte offset
         self.n_format_byte = n_format_byte
         

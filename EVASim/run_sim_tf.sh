@@ -8,7 +8,8 @@ mkdir -p $OUT
 
 ### dataset ###
 data_path_dir="$(pwd)/datasets/"
-dataset_list=("wikipedia/wikitext_10m.txt") # "wikipedia/20220301de.txt" "wikipedia/20220301en.txt"
+# dataset_list=("wikipedia/wikitext_10m.txt") # "wikipedia/20220301de.txt" "wikipedia/20220301en.txt"
+dataset_list=("wikipedia/20220301de.txt" "wikipedia/20220301en.txt") # "wikipedia/20220301de.txt" "wikipedia/20220301en.txt"
 ###############
 
 ### simulation parameters ###
@@ -19,7 +20,7 @@ EMB_TBL=1
 EMB_POOL=131072
 EMBS="$EMB_DIM,$EMB_ROW,$EMB_TBL,$EMB_POOL"
 
-NUM_BATCH=1
+NUM_BATCH=2
 BS=1
 ##############################
 

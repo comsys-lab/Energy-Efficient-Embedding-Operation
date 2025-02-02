@@ -151,13 +151,13 @@ if __name__ == "__main__":
     helper.end_timer("address generation")
     
     # temporal test: store reqgen.addr_trace np array in a txt file, each element in each row in the txt file.
-    with open("addr_trace.txt", "w") as f:
-        for i in range(len(reqgen.addr_trace)):
-            for j in range(len(reqgen.addr_trace[i])):
-                for k in range(len(reqgen.addr_trace[i][j])):
-                    f.write(str(reqgen.addr_trace[i][j][k]) + "\n")
-                # f.write("\n")
-    f.close()
+    # with open("addr_trace.txt", "w") as f:
+    #     for i in range(len(reqgen.addr_trace)):
+    #         for j in range(len(reqgen.addr_trace[i])):
+    #             for k in range(len(reqgen.addr_trace[i][j])):
+    #                 f.write(str(reqgen.addr_trace[i][j][k]) + "\n")
+    #             # f.write("\n")
+    # f.close()
     
     # exit()
 

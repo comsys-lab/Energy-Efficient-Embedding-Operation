@@ -8,27 +8,43 @@
 ║ Num tables: 512                                                                                    ║
 ║ Batch Size (samples per batch): 128                                                                ║
 ║ Vectors per table: 1000000                                                                         ║
-║ Lookups per sample: 170                                                                            ║
+║ Lookups per sample: 1                                                                              ║
 ║ Embedding Dimension 256                                                                            ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-(Time elapsed(s) in model and data gen:   1.815933sec)
-[DEBUG] addr_trace shape: (1, 512, 43520)
+(Time elapsed(s) in model and data gen:   0.925194sec)
+[DEBUG] addr_trace shape: (1, 512, 256)
 Converting vector indices into virtual memory addresses for batch 0...
-(Time elapsed(s) in address generation:  48.407169sec)
+(Time elapsed(s) in address generation:   0.332576sec)
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 On-Chip Memory Configuration 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
 ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
 ║ Memory size: 134217728 B (128 MB)                                                                  ║
-║ Memory type: profile                                                                               ║
-║ Memory policy: profile_dynamic_cache                                                               ║
+║ Memory type: cache                                                                                 ║
+║ Memory policy: cache_LRU                                                                           ║
+║ Cache way: 16-way                                                                                  ║
+║ Cache line size: 128 B                                                                             ║
+║ Cache set: 65536 sets                                                                              ║
+║ Cache tag bits: 25 bits                                                                            ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-[DEBUG] logger can contain 524288 vectors
-[DEBUG] logger is empty. Set the spad with the naive method.
-on mem data structure size: 8192.11 KB
-(Time elapsed(s) in create memory structure:   1.888545sec)
+on mem data structure size: 549.30 KB
+(Time elapsed(s) in create memory structure:   0.775373sec)
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 Simulation Start 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-Simulation for batch 0...
+Processing batch 0...
+Simulation Done
+
+╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 Simulation Results 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
+╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+║ Total hit ratio: 0.0313                                                                            ║
+║ Total accesses: 131072                                                                             ║
+║ Total hits: 4098                                                                                   ║
+║ Total misses: 126974                                                                               ║
+║ ----------------------------------------                                                           ║
+║ Per batch results                                                                                  ║
+║ [Batch 0] hit ratio: 0.0313   accesses: 131072   hits: 4098   misses: 126974                       ║
+╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+(Time elapsed(s) in do simulation:   0.424700sec)

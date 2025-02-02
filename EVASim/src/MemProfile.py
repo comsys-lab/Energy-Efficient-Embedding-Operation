@@ -91,22 +91,29 @@ class MemProfile:
     def set_spad(self):
         on_mem_set = []
         if self.mem_policy == "profile_static":
-            # open the profiled dataset file using the self.profiled_path
-            with open(self.profiled_path, 'r') as f:
-            # load the profiled dataset in to the on_mem_set array (load "self.spad_size" of elements)
-                for i in range(self.spad_size):
-                    line = f.readline()
-                    on_mem_set.append(int(line))
-                    # break if the end of the file is reached
-                    if not line:
-                        break                    
-            on_mem_set = np.asarray(on_mem_set, dtype=np.int64)
-            f.close()
-            # [DEBUG] print the (number of entries in the on_mem_set) and (the first and the last element of the on_mem_set)
-            print("[DEBUG] on_mem has {} elements.".format(len(on_mem_set)))
-            print("[DEBUG] on_mem[0]: {}".format(on_mem_set[0]))
-            print("[DEBUG] on_mem[-1]: {}".format(on_mem_set[-1]))
-            
+            try:
+                with open(self.profiled_path, 'r') as f:
+                    for i in range(self.spad_size):
+                        line = f.readline().strip()
+                        if not line:  # Check for empty line
+                            break
+                        on_mem_set.append(int(line))
+                        
+                on_mem_set = np.asarray(on_mem_set, dtype=np.int64)
+                
+                # Debug prints
+                print("[DEBUG] on_mem has {} elements.".format(len(on_mem_set)))
+                if len(on_mem_set) > 0:
+                    print("[DEBUG] on_mem[0]: {}".format(on_mem_set[0]))
+                    print("[DEBUG] on_mem[-1]: {}".format(on_mem_set[-1]))
+                
+            except FileNotFoundError:
+                print(f"Error: Could not find profile file at {self.profiled_path}")
+                raise
+            except ValueError as e:
+                print(f"Error: Invalid data in profile file - {e}")
+                raise
+                
         elif self.mem_policy == "profile_dynamic_cache":
             if self.logger.is_empty(): 
                 print("[DEBUG] logger is empty. Set the spad with the naive method.")
@@ -137,6 +144,8 @@ class MemProfile:
                 # print("[DEBUG] logger is not empty. Set the spad with the logger entries.")
                 # slice the logger to the size of self.spad_size
                 on_mem_set = self.logger.return_as_array()[:self.spad_size]
+                # print("[DEBUG] on_mem_set type: {}, shape: {}, dtype: {}".format(type(on_mem_set), on_mem_set.shape, on_mem_set.dtype))
+                # print("[DEBUG] on_mem_set[0]: {}, on_mem_set[-1]: {}".format(on_mem_set[0], on_mem_set[-1]))
         
         elif self.mem_policy == "profile_dynamic_count":
             if self.counter_set == 0: 
@@ -215,42 +224,50 @@ class MemProfile:
         
     def do_simulation_dcache(self):
         dynamic_counter = 0
-        dynamic_counter_threshold = 500
+        dynamic_counter_threshold = 100
+        self.logger_results = [] # for DEBUG
         
         # print("[DEBUG] print the nb, nt, vec of self.emb_dataset {} {} {}".format(len(self.emb_dataset), len(self.emb_dataset[0]), len(self.emb_dataset[0][0])))
         
         for nb in range(len(self.emb_dataset)):
             num_hit = 0
             num_miss = 0
+            logger_hit = 0
+            logger_miss = 0
             
             print("Simulation for batch {}...".format(nb))
             vectors_in_batch = list(chain.from_iterable(self.emb_dataset[nb]))
             with tqdm(total=len(vectors_in_batch), desc=f"Batch {nb}") as pbar:
                 for vec in vectors_in_batch:
                     # Check cache hit or miss
-                    is_hit = vec in np.asarray(self.on_mem)
+                    is_hit = vec in self.on_mem
                     if is_hit:
                         num_hit += 1
                     else:
                         num_miss += 1
                     
-                    print("[DEBUG] Processing node {}...".format(vec))
+                    # print("[DEBUG] Processing node {}...".format(vec))
                     # Update the logger
                     if not self.logger.search_and_access(vec):
-                        print("[DEBUG] Miss and Inserting node {} to the logger".format(vec))
+                        # print("[DEBUG] Miss and Inserting node {} to the logger".format(vec))
                         self.logger.insert_node(vec)
+                        logger_miss += 1
                     else:
-                        print("[DEBUG] Hit node {} in the logger".format(vec))
+                        # print("[DEBUG] Hit node {} in the logger".format(vec))
+                        logger_hit += 1
                     
                     # periodically update the spad
                     dynamic_counter += 1
+                    # print("[DEBUG] dynamic_counter: {}".format(dynamic_counter))
                     if dynamic_counter == dynamic_counter_threshold:
+                        # print("[DEBUG] update spad / dynamic_counter: {}".format(dynamic_counter))
                         self.on_mem = self.set_spad()
                         dynamic_counter = 0
                     
                     pbar.update(1)
             
             self.access_results.append([num_hit, num_miss])
+            self.logger_results.append([logger_hit, logger_miss])
             # print("[DEBUG] result appended for batch {}".format(nb))
         
         print("Simulation Done")
@@ -281,6 +298,7 @@ class MemProfile:
                         # periodically update the spad
                         dynamic_counter += 1
                         if dynamic_counter == dynamic_counter_threshold:
+                            print("[DEBUG] update spad / dynamic_counter: {}".format(dynamic_counter))
                             self.on_mem = self.set_spad()
                             dynamic_counter = 0
                             
@@ -317,5 +335,13 @@ class MemProfile:
                 f"hits: {self.access_results[i][0]} " +
                 f"misses: {self.access_results[i][1]}"
             )
+            # DEBUG: if the mem policy is dcache, append per-batch logger results and logger hit ratio
+            if self.mem_policy == "profile_dynamic_cache":
+                content.append(
+                    f"[Batch {i}] logger hit ratio: {self.logger_results[i][0]/(self.logger_results[i][0]+self.logger_results[i][1]):.4f} " +
+                    f"accesses: {self.logger_results[i][0]+self.logger_results[i][1]} " +
+                    f"hits: {self.logger_results[i][0]} " +
+                    f"misses: {self.logger_results[i][1]}"
+                )
         
         print_styled_box("Simulation Results", content)
