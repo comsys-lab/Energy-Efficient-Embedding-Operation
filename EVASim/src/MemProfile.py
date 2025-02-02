@@ -84,7 +84,7 @@ class MemProfile:
             print("[DEBUG] logger can contain {} vectors".format(int(self.logger_size / self.access_per_vector)))
         elif self.mem_policy == "profile_dynamic_count":
             # create a counter array, which has the same dimension as the emb_dataset
-            self.counter_arr = np.zeros((len(self.emb_dataset), len(self.emb_dataset[0]), len(self.emb_dataset[0][0])), dtype=np.int64)
+            self.counter_arr = np.zeros((len(self.index_trace), len(self.index_trace[0]), self.vectors_per_table), dtype=np.int64)
             self.counter_set = 0
         self.on_mem = self.set_spad()
     
@@ -172,27 +172,35 @@ class MemProfile:
                                 break
                         if break_flag:
                             break
+                
+                self.counter_set = 1
                 on_mem_set = np.asarray(on_mem_set, dtype=np.int64)
-            else: # if the counter is not empty, sort the counter array, and then set the spad with the entries in the logger
-                temp_on_mem = []
-                # sort the INDICES of counter array in descending order (do not change the original counter_arr) and slice the array to the size of self.spad_size/self.access_per_vector, then store in a new array
-                sorted_indices = np.argsort(self.counter_arr.flatten())[::-1][:int(self.spad_size/self.access_per_vector)]
-                # Convert sorted_indices back to indices considering emb_dataset structure
-                sorted_indices = np.unravel_index(sorted_indices, self.counter_arr.shape)                
-                # Create address (this_addr) for each index in sorted_indices and store in temp_on_mem
-                for i in range(len(sorted_indices[0])):
-                    b_i = sorted_indices[0][i] # batch index, not used
-                    t_i = sorted_indices[1][i]
-                    v_i = sorted_indices[2][i]
-                    for j in range(self.access_per_vector):
-                        bytes_per_vec = (self.emb_dim * self.n_format_byte - 1).bit_length()
-                        tbl_bits = t_i << int(np.log2(self.vectors_per_table) + bytes_per_vec)
-                        vec_idx = v_i << bytes_per_vec
-                        dim_bits = self.mem_gran * j
-                        this_addr = tbl_bits + vec_idx + dim_bits
-                        temp_on_mem.append(this_addr)                
-                                
-                on_mem_set = np.asarray(temp_on_mem, dtype=np.int64)
+                
+            else:
+                # Pre-allocate the final array
+                on_mem_set = np.empty(self.spad_size, dtype=np.int64)
+                
+                # Get the top indices in one go
+                vectors_needed = self.spad_size // self.access_per_vector
+                flat_indices = np.argpartition(self.counter_arr.ravel(), -vectors_needed)[-vectors_needed:]
+                
+                # Calculate the actual addresses directly
+                batch_indices = flat_indices // (self.vectors_per_table * len(self.index_trace[0]))
+                temp = flat_indices % (self.vectors_per_table * len(self.index_trace[0]))
+                table_indices = temp // self.vectors_per_table
+                vector_indices = temp % self.vectors_per_table
+                
+                # Generate all addresses at once using broadcasting
+                bytes_per_vec = (self.emb_dim * self.n_format_byte - 1).bit_length()
+                dim_offsets = np.arange(self.access_per_vector) * self.mem_gran
+                tbl_bits = (table_indices[:, None] << int(np.log2(self.vectors_per_table) + bytes_per_vec))
+                vec_idx = (vector_indices[:, None] << bytes_per_vec)
+                
+                # Final address calculation using broadcasting
+                addresses = tbl_bits + vec_idx + dim_offsets
+                on_mem_set = addresses.ravel()[:self.spad_size]
+                
+                return on_mem_set
         
         return on_mem_set
     
@@ -224,7 +232,7 @@ class MemProfile:
         
     def do_simulation_dcache(self):
         dynamic_counter = 0
-        dynamic_counter_threshold = 100
+        dynamic_counter_threshold = 500
         self.logger_results = [] # for DEBUG
         
         # print("[DEBUG] print the nb, nt, vec of self.emb_dataset {} {} {}".format(len(self.emb_dataset), len(self.emb_dataset[0]), len(self.emb_dataset[0][0])))
@@ -275,22 +283,28 @@ class MemProfile:
     
     def do_simulation_dcount(self):
         dynamic_counter = 0
-        dynamic_counter_threshold = 500
+        dynamic_counter_threshold = 1000
         
         for nb in range(len(self.emb_dataset)):
             num_hit = 0
             num_miss = 0
             
             print("Simulation for batch {}...".format(nb))
-            with tqdm(total=len(self.emb_dataset[nb]) * len(self.index_trace[nb][nt]), desc=f"Batch {nb}") as pbar:
+            with tqdm(total=len(self.index_trace[0]) * len(self.index_trace[0][0]), desc=f"Batch {nb}") as pbar:
                 for nt in range(len(self.emb_dataset[nb])):
                     for vec_ind in range(len(self.index_trace[nb][nt])):
                         # update the counter array using the index trace
-                        self.counter_arr[nb][nt][vec] += 1
+                        this_vec_ind = self.index_trace[nb][nt][vec_ind]
+                        self.counter_arr[nb][nt][this_vec_ind] += 1
+                        
+                        # print("[DEBUG] vector index {} is accessed {} times".format(this_vec_ind, self.counter_arr[nb][nt][this_vec_ind]))
+                        
+                        vec = vec_ind * self.access_per_vector
+                        
                         # simluation is addr based
                         for dim in range(self.access_per_vector):
-                            is_hit = self.addr_trace[nb][nt][vec_ind+dim] in np.asarray(self.on_mem)
-                            if is_hit:
+                            
+                            if self.emb_dataset[nb][nt][vec + dim] in self.on_mem:
                                 num_hit += 1
                             else:
                                 num_miss += 1
@@ -298,7 +312,7 @@ class MemProfile:
                         # periodically update the spad
                         dynamic_counter += 1
                         if dynamic_counter == dynamic_counter_threshold:
-                            print("[DEBUG] update spad / dynamic_counter: {}".format(dynamic_counter))
+                            # print("[DEBUG] update spad / dynamic_counter: {}".format(dynamic_counter))
                             self.on_mem = self.set_spad()
                             dynamic_counter = 0
                             

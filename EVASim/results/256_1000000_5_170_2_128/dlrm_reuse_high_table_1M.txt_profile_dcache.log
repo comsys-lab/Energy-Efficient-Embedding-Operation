@@ -4,17 +4,18 @@
 ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
 ║ Dataset: /workspace/EVASim/datasets/dlrm/reuse_high_table_1M.txt                                   ║
 ║ Numeric format: 8 bits                                                                             ║
-║ Num batches: 1                                                                                     ║
-║ Num tables: 512                                                                                    ║
+║ Num batches: 2                                                                                     ║
+║ Num tables: 5                                                                                      ║
 ║ Batch Size (samples per batch): 128                                                                ║
 ║ Vectors per table: 1000000                                                                         ║
 ║ Lookups per sample: 170                                                                            ║
 ║ Embedding Dimension 256                                                                            ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-(Time elapsed(s) in model and data gen:   1.229691sec)
-[DEBUG] addr_trace shape: (1, 512, 43520)
+(Time elapsed(s) in model and data gen:   0.583121sec)
+[DEBUG] addr_trace shape: (2, 5, 43520)
 Converting vector indices into virtual memory addresses for batch 0...
-(Time elapsed(s) in address generation:  33.030547sec)
+Converting vector indices into virtual memory addresses for batch 1...
+(Time elapsed(s) in address generation:   0.632422sec)
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 On-Chip Memory Configuration 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
@@ -26,24 +27,27 @@ Converting vector indices into virtual memory addresses for batch 0...
 [DEBUG] logger can contain 524288 vectors
 [DEBUG] logger is empty. Set the spad with the naive method.
 on mem data structure size: 8192.11 KB
-(Time elapsed(s) in create memory structure:   1.317433sec)
+(Time elapsed(s) in create memory structure:   1.291881sec)
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 Simulation Start 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
 Simulation for batch 0...
+Simulation for batch 1...
 Simulation Done
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 Simulation Results 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
 ╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
-║ Total hit ratio: 0.8082                                                                            ║
-║ Total accesses: 22282240                                                                           ║
-║ Total hits: 18008624                                                                               ║
-║ Total misses: 4273616                                                                              ║
+║ Total hit ratio: 0.6913                                                                            ║
+║ Total accesses: 435200                                                                             ║
+║ Total hits: 300840                                                                                 ║
+║ Total misses: 134360                                                                               ║
 ║                                                                                                    ║
 ║ Per batch results:                                                                                 ║
-║ [Batch 0] hit ratio: 0.8082 accesses: 22282240 hits: 18008624 misses: 4273616                      ║
-║ [Batch 0] logger hit ratio: 0.8095 accesses: 22282240 hits: 18038440 misses: 4243800               ║
+║ [Batch 0] hit ratio: 0.6862 accesses: 217600 hits: 149310 misses: 68290                            ║
+║ [Batch 0] logger hit ratio: 0.6940 accesses: 217600 hits: 151006 misses: 66594                     ║
+║ [Batch 1] hit ratio: 0.6964 accesses: 217600 hits: 151530 misses: 66070                            ║
+║ [Batch 1] logger hit ratio: 0.7040 accesses: 217600 hits: 153198 misses: 64402                     ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-(Time elapsed(s) in do simulation: 11464.071409sec)
+(Time elapsed(s) in do simulation:  81.805415sec)
