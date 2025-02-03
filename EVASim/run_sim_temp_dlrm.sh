@@ -3,7 +3,8 @@
 
 ### outdir ### 
 # OUT="results_ed_r_nt_lk_nb_bs"
-OUT="results"
+# OUT="results_1mperiod"
+OUT="results_Batchperiod"
 mkdir -p $OUT
 ##############
 

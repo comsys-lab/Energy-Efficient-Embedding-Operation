@@ -232,7 +232,10 @@ class MemProfile:
         
     def do_simulation_dcache(self):
         dynamic_counter = 0
-        dynamic_counter_threshold = 500
+        # dynamic_counter_threshold = 1000000
+        vectors_in_batch = list(chain.from_iterable(self.emb_dataset[0]))
+        dynamic_counter_threshold = min(len(vectors_in_batch), 10000000) # number of vectors in the batch or 10M, whichever is smaller
+        print("[DEBUG] dynamic_counter_threshold: {}".format(dynamic_counter_threshold))
         self.logger_results = [] # for DEBUG
         
         # print("[DEBUG] print the nb, nt, vec of self.emb_dataset {} {} {}".format(len(self.emb_dataset), len(self.emb_dataset[0]), len(self.emb_dataset[0][0])))
@@ -244,7 +247,7 @@ class MemProfile:
             logger_miss = 0
             
             print("Simulation for batch {}...".format(nb))
-            vectors_in_batch = list(chain.from_iterable(self.emb_dataset[nb]))
+            # vectors_in_batch = list(chain.from_iterable(self.emb_dataset[nb]))
             with tqdm(total=len(vectors_in_batch), desc=f"Batch {nb}") as pbar:
                 for vec in vectors_in_batch:
                     # Check cache hit or miss

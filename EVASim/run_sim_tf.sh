@@ -2,14 +2,16 @@
 # Original code: https://github.com/rishucoding/reproduce_MICRO24_GPU_DLRM_inference
 
 ### outdir ### 
-OUT="results_ed_r_nt_lk_nb_bs"
+# OUT="results_ed_r_nt_lk_nb_bs"
+# OUT="results_1mperiod"
+OUT="results_Batchperiod"
 mkdir -p $OUT
 ##############
 
 ### dataset ###
 data_path_dir="$(pwd)/datasets/"
 # dataset_list=("wikipedia/wikitext_10m.txt") # "wikipedia/20220301de.txt" "wikipedia/20220301en.txt"
-dataset_list=("wikipedia/20220301de.txt" "wikipedia/20220301en.txt") # "wikipedia/20220301de.txt" "wikipedia/20220301en.txt"
+dataset_list=("wikipedia/wikitext_10m.txt" "wikipedia/20220301de.txt" "wikipedia/20220301en.txt") # "wikipedia/20220301de.txt" "wikipedia/20220301en.txt"
 ###############
 
 ### simulation parameters ###
