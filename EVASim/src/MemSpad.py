@@ -25,6 +25,7 @@ class MemSpad:
         self.vectors_per_table = 0
         
         self.access_results = []
+        self.spad_load_results = []
                
         self.set_params(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, n_format_byte)
         
@@ -144,6 +145,7 @@ class MemSpad:
         for nb in range(len(self.emb_dataset)): # recall that self.emb_dataset[numbatch][table][batchsz*lookuppersample]
             num_hit = 0
             num_miss = 0
+            num_spad_load = 0
             
             print("Simulation for batch {}...".format(nb))
             with tqdm(total=len(self.emb_dataset[nb]), desc="Simulation") as pbar:
@@ -163,8 +165,10 @@ class MemSpad:
                 if self.mem_policy == "spad_oracle":
                     self.batch_counter = min(self.batch_counter + 1, len(self.emb_dataset)-1)
                     self.on_mem = self.set_spad()
+                    num_spad_load += self.spad_size
             
             self.access_results.append([num_hit, num_miss]) # add the results for each batch
+            self.spad_load_results.append(num_spad_load)
             
         print("Simulation Done")
         self.print_stats()
@@ -194,5 +198,11 @@ class MemSpad:
                 f"hits: {self.access_results[i][0]} " +
                 f"misses: {self.access_results[i][1]}"
             )
+            
+            # print the spad load results per batch
+            content.append(
+                f"[Batch {i}] spad load: {self.spad_load_results[i]}"
+            )
+            
         
         print_styled_box("Simulation Results", content)

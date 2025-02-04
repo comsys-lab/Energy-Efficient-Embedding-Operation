@@ -31,6 +31,7 @@ class MemProfile:
         self.n_format_byte = 0
         
         self.access_results = []
+        self.spad_load_results = []
                
         self.set_params(mem_size, mem_type, emb_dim, emb_dataset, vectors_per_table, mem_gran, n_format_byte, profiled_path)
         
@@ -215,6 +216,7 @@ class MemProfile:
             for nb in range(len(self.emb_dataset)): # recall that self.emb_dataset[numbatch][table][batchsz*lookuppersample]
                 num_hit = 0
                 num_miss = 0
+                num_spad_load = 0
                 
                 print("Simulation for batch {}...".format(nb))
                 with tqdm(total=len(self.emb_dataset[nb]), desc="Simulation") as pbar:
@@ -224,18 +226,20 @@ class MemProfile:
                         num_miss += np.sum(~hit_mask)
                         
                         pbar.update(1)
-                
+                                
                 self.access_results.append([num_hit, num_miss]) # add the results for each batch
+                self.spad_load_results.append(num_spad_load)
                 
             print("Simulation Done")
             self.print_stats()
         
     def do_simulation_dcache(self):
         dynamic_counter = 0
-        # dynamic_counter_threshold = 1000000
         vectors_in_batch = list(chain.from_iterable(self.emb_dataset[0]))
-        dynamic_counter_threshold = min(len(vectors_in_batch), 10000000) # number of vectors in the batch or 10M, whichever is smaller
+        dynamic_counter_threshold = len(vectors_in_batch) # number of vectors in the batch
+        
         print("[DEBUG] dynamic_counter_threshold: {}".format(dynamic_counter_threshold))
+        
         self.logger_results = [] # for DEBUG
         
         # print("[DEBUG] print the nb, nt, vec of self.emb_dataset {} {} {}".format(len(self.emb_dataset), len(self.emb_dataset[0]), len(self.emb_dataset[0][0])))
@@ -243,6 +247,7 @@ class MemProfile:
         for nb in range(len(self.emb_dataset)):
             num_hit = 0
             num_miss = 0
+            num_spad_load = 0
             logger_hit = 0
             logger_miss = 0
             
@@ -273,11 +278,13 @@ class MemProfile:
                     if dynamic_counter == dynamic_counter_threshold:
                         # print("[DEBUG] update spad / dynamic_counter: {}".format(dynamic_counter))
                         self.on_mem = self.set_spad()
+                        num_spad_load += self.spad_size
                         dynamic_counter = 0
                     
                     pbar.update(1)
             
             self.access_results.append([num_hit, num_miss])
+            self.spad_load_results.append(num_spad_load)
             self.logger_results.append([logger_hit, logger_miss])
             # print("[DEBUG] result appended for batch {}".format(nb))
         
@@ -291,6 +298,7 @@ class MemProfile:
         for nb in range(len(self.emb_dataset)):
             num_hit = 0
             num_miss = 0
+            num_spad_load = 0
             
             print("Simulation for batch {}...".format(nb))
             with tqdm(total=len(self.index_trace[0]) * len(self.index_trace[0][0]), desc=f"Batch {nb}") as pbar:
@@ -317,11 +325,13 @@ class MemProfile:
                         if dynamic_counter == dynamic_counter_threshold:
                             # print("[DEBUG] update spad / dynamic_counter: {}".format(dynamic_counter))
                             self.on_mem = self.set_spad()
+                            num_spad_load += self.spad_size
                             dynamic_counter = 0
                             
                         pbar.update(1)
                 
             self.access_results.append([num_hit, num_miss])
+            self.spad_load_results.append(num_spad_load)
         
         print("Simulation Done")
         self.print_stats()
@@ -352,6 +362,12 @@ class MemProfile:
                 f"hits: {self.access_results[i][0]} " +
                 f"misses: {self.access_results[i][1]}"
             )
+            
+            # print the spad load results per batch
+            content.append(
+                f"[Batch {i}] spad load: {self.spad_load_results[i]}"
+            )
+            
             # DEBUG: if the mem policy is dcache, append per-batch logger results and logger hit ratio
             if self.mem_policy == "profile_dynamic_cache":
                 content.append(

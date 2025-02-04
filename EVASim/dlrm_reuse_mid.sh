@@ -4,28 +4,26 @@
 ### outdir ### 
 # OUT="results_ed_r_nt_lk_nb_bs"
 # OUT="results_1mperiod"
-OUT="results_Batchperiod"
+OUT="results_Batchperiod0204"
 mkdir -p $OUT
 ##############
 
 ### dataset ###
 data_path_dir="$(pwd)/datasets/"
-# dataset_list=("vectordb/sift250m_10m.txt")
-dataset_list=("vectordb/spacev250m_10m.txt")
-# dataset_list=("vectordb/deep250m_10m.txt")
+dataset_list=("dlrm/reuse_medium_table_1M.txt")
+# dataset_list=("dlrm/reuse_high_table_1M.txt")
 ###############
 
 ### simulation parameters ###
 MEM_CFG=$1 # spad_naive
-EMB_DIM=100
-EMB_ROW=250000000
-EMB_TBL=1
-EMB_POOL=10000000
+EMB_DIM=256
+EMB_ROW=1000000
+EMB_TBL=512
+EMB_POOL=170
 EMBS="$EMB_DIM,$EMB_ROW,$EMB_TBL,$EMB_POOL"
-NUM_FORMAT=32
 
-NUM_BATCH=2
-BS=1
+NUM_BATCH=5
+BS=128
 ##############################
 
 ### others ###
@@ -44,8 +42,8 @@ for dataset in "${dataset_list[@]}"; do
     for e in $EMBS; do
         IFS=','; set -- $e; EMB_DIM=$1; EMB_ROW=$2; EMB_TBL=$3; EMB_LS=$4; unset IFS;
         EMB_TBL=$(python3 -c "$PyGenTbl" "$EMB_ROW" "$EMB_TBL")
-        python3 src/simulator.py --num-batches $NUM_BATCH --batch-size $BS\
-            --lookups-per-sample $EMB_LS --arch-sparse-feature-size $EMB_DIM --numeric-format-bits $NUM_FORMAT\
+        python3 src/simulator.py --num-batches $NUM_BATCH --batch-size $BS --numeric-format-bits "8" \
+            --lookups-per-sample $EMB_LS --arch-sparse-feature-size $EMB_DIM\
             --arch-embedding-size $EMB_TBL --data-generation=$DATA_GEN_PATH --memory-config=$MEM_CFG | tee $(pwd)/${OUTFILE}_${MEM_CFG}.log
     done
 done

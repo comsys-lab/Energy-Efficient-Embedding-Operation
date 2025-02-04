@@ -3,7 +3,7 @@
 
 ### outdir ### 
 # OUT="results_ed_r_nt_lk_nb_bs"
-OUT="results_Batchperiod"
+OUT="results_Batchperiod0204"
 mkdir -p $OUT
 ##############
 
@@ -22,7 +22,7 @@ EMB_POOL=170
 EMBS="$EMB_DIM,$EMB_ROW,$EMB_TBL,$EMB_POOL"
 
 NUM_BATCH=2
-BS=128
+BS=32
 ##############################
 
 ### others ###
