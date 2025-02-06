@@ -1,6 +1,7 @@
 import numpy as np
 import time
 import torch
+import sys
 from tqdm import tqdm
 
 ## We implement this module based on this code: https://github.com/rishucoding/reproduce_MICRO24_GPU_DLRM_inference by RJ
@@ -18,7 +19,7 @@ def dash_separated_ints(value):
 
     return value
 
-class ReqGenerator:
+class ReqGenerator_temp_criteo:
     def __init__(self, nbatches, n_format_byte, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran):
         self.dataset_gen = None
         # sparse feature (sparse indices)
@@ -59,6 +60,46 @@ class ReqGenerator:
             for x in idx:
                 yield x
 
+    def open_gen_EOT(self, name, rows):
+        print("[DEBUG] Reading input file and separating tables by EOT markers")
+        
+        indices_by_table = []
+        current_table = []
+        line_count = 0
+        
+        with open(name) as f:
+            for line in f:
+                line = line.strip()
+                line_count += 1
+                
+                if line == "EOT":
+                    print(f"[DEBUG] Found EOT marker at line {line_count}. "
+                          f"Indices collected for current table: {len(current_table)}")
+                    
+                    if len(current_table) > 0:  # Only append non-empty tables
+                        indices_by_table.append(current_table)
+                    current_table = []  # Start a new table
+                    continue
+                
+                try:
+                    idx = int(line)
+                    if idx < rows:  # filter indices that are too large
+                        current_table.append(idx)
+                except ValueError:
+                    continue  # Skip invalid lines silently
+        
+        # Don't forget to append the last table if it has data
+        if len(current_table) > 0:
+            indices_by_table.append(current_table)
+            print(f"[DEBUG] Appending final table with {len(current_table)} indices")
+        
+        # Final summary
+        print(f"[DEBUG] Total number of tables found: {len(indices_by_table)}")
+        for i, table in enumerate(indices_by_table):
+            print(f"[DEBUG] Table {i} size: {len(table)}")
+        
+        return indices_by_table
+
     def get_gen(self, rows):
         if self.dataset_gen is None:
             self.dataset_gen = self.open_gen(self.fname, int(rows))
@@ -92,13 +133,70 @@ class ReqGenerator:
 
         return (self.lS_emb_offsets, self.lS_emb_indices)
 
+    def trace_read_input_batch_EOT(self, m_den, ln_emb):
+        if not hasattr(self, 'table_indices'):
+            self.table_indices = self.open_gen_EOT(self.fname, ln_emb[0])
+            
+            # Check if number of tables in file matches requested number
+            if len(self.table_indices) < len(ln_emb):
+                print(f"Error: Input file has {len(self.table_indices)} tables but {len(ln_emb)} tables were requested")
+                print("Please ensure input file has enough tables or adjust requested table count")
+                sys.exit(1)
+            elif len(self.table_indices) > len(ln_emb):
+                print(f"Warning: Input file has {len(self.table_indices)} tables but only {len(ln_emb)} tables were requested")
+                # Use only the requested number of tables
+                self.table_indices = self.table_indices[:len(ln_emb)]
+            
+            self.current_pos = [0] * len(self.table_indices)
+            
+        self.lS_emb_offsets = []
+        self.lS_emb_indices = []
+        
+        total_indices_needed = self.num_indices_per_lookup * self.bsz
+        
+        # For each table
+        for table_idx in range(len(ln_emb)):
+            lS_batch_offsets = []
+            lS_batch_indices = []
+            offset = 0
+            indices_collected = 0
+            
+            # Keep collecting indices until we have enough for this table
+            while indices_collected < total_indices_needed:
+                # Get next index from the current table
+                curr_table = self.table_indices[table_idx]
+                curr_pos = self.current_pos[table_idx]
+                
+                # Reset position if we reach the end of table
+                if curr_pos >= len(curr_table):
+                    curr_pos = 0
+                    self.current_pos[table_idx] = 0
+                
+                next_idx = curr_table[curr_pos]
+                self.current_pos[table_idx] += 1
+                
+                lS_batch_indices.append(next_idx)
+                indices_collected += 1
+                
+                # If we've collected enough indices for one sample, update offset
+                if indices_collected % self.num_indices_per_lookup == 0:
+                    lS_batch_offsets.append(offset)
+                    offset += self.num_indices_per_lookup
+            
+            self.lS_emb_offsets.append(np.array(lS_batch_offsets, dtype=np.int64))
+            self.lS_emb_indices.append(np.array(lS_batch_indices, dtype=np.int64))
+            
+        return (self.lS_emb_offsets, self.lS_emb_indices)
+
     def data_gen(self):
         ln_emb = np.fromstring(self.embsize, dtype=int, sep="-") # memo ln_emb represents the number of tables
         ln_emb = np.asarray(ln_emb, dtype=np.int32) # shape of ln_emb is (num_tables,)
         ln_bot = np.fromstring('256-128-' + str(self.emb_dim), dtype=int, sep="-")
 
         for j in range(0, self.nbatches):
-            self.lS_emb_offsets, self.lS_emb_indices = self.trace_read_input_batch(ln_bot[0], ln_emb)
+            # Use either the original method or the new EOT method
+            # self.lS_emb_offsets, self.lS_emb_indices = self.trace_read_input_batch(ln_bot[0], ln_emb)
+            self.lS_emb_offsets, self.lS_emb_indices = self.trace_read_input_batch_EOT(ln_bot[0], ln_emb)
             self.lS_o.append(self.lS_emb_offsets)
             self.lS_i.append(self.lS_emb_indices)
             

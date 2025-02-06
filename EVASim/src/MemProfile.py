@@ -293,7 +293,9 @@ class MemProfile:
     
     def do_simulation_dcount(self):
         dynamic_counter = 0
-        dynamic_counter_threshold = 1000
+        vectors_in_batch = list(chain.from_iterable(self.emb_dataset[0]))
+        dynamic_counter_threshold = len(vectors_in_batch) # number of vectors in the batch
+        # dynamic_counter_threshold = 1000
         
         for nb in range(len(self.emb_dataset)):
             num_hit = 0

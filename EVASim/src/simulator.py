@@ -1,8 +1,10 @@
 from Helper import Helper, print_styled_box
 from ReqGenerator import ReqGenerator
+from ReqGenerator_temp_criteo import ReqGenerator_temp_criteo # This is for temporal test
 from MemSpad import MemSpad
 from MemCache import MemCache
 from MemProfile import MemProfile
+from EnergyEstimator import EnergyEstimator
 import argparse
 import sys
 import numpy as np
@@ -116,17 +118,18 @@ if __name__ == "__main__":
     ################################
 
     helper.set_timer()
-    reqgen = ReqGenerator(nbatches, n_format_byte, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran)
+    # reqgen = ReqGenerator(nbatches, n_format_byte, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran)
+    reqgen = ReqGenerator_temp_criteo(nbatches, n_format_byte, embsize, emb_dim, bsz, fname, num_indices_per_lookup, mem_gran)
     reqgen.data_gen()
     
     # # temporal test: store reqgen.ls_i np array in a txt file, each element in each row in the txt file.
-    # with open("ls_i.txt", "w") as f:
-    #     for i in range(len(reqgen.lS_i)):
-    #         for j in range(len(reqgen.lS_i[i])):
-    #             for k in range(len(reqgen.lS_i[i][j])):
-    #                 f.write(str(reqgen.lS_i[i][j][k]) + "\n")
-    #             # f.write("\n")
-    # f.close()
+    with open("ls_i.txt", "w") as f:
+        for i in range(len(reqgen.lS_i)):
+            for j in range(len(reqgen.lS_i[i])):
+                for k in range(len(reqgen.lS_i[i][j])):
+                    f.write(str(reqgen.lS_i[i][j][k]) + "\n")
+                # f.write("\n")
+    f.close()
     
     # exit()
     
@@ -201,5 +204,34 @@ if __name__ == "__main__":
     helper.set_timer()
     mem_struct.do_simulation()
     helper.end_timer("do simulation")
+    
+    #-------------------------------------------------------------------
+    
+    #################################
+    ### Run the energy estimation ###
+    #################################
+    
+    helper.set_timer()
+    
+    # set the parameters for energy estimation
+    workload_type = fname.split('/')[-2]
+    
+    print("[DEBUG] workload_type: {}".format(workload_type))
+    
+    workload_config_path = os.path.join(os.path.dirname(os.path.dirname(script_dir)), 'EVASim', 'configs', 'workload_config.yaml')
+    energy_table_path = os.path.join(os.path.dirname(os.path.dirname(script_dir)), 'EVASim', 'configs', 'energy_estimation_table.yaml')
+    # access_per_batch = num_tables * num_indices_per_lookup * bsz
+    access_per_batch = num_tables * len(reqgen.addr_trace[0][0])
+    tech_node = 45
+    if n_format_byte == 4: # currently only support fp32 and int8
+        energy_n_format = "fp32"
+    elif n_format_byte == 1:
+        energy_n_format = "int8"
+    
+    energy_est = EnergyEstimator(workload_type, workload_config_path, tech_node, energy_table_path, energy_n_format, mem_struct.access_results, access_per_batch, mem_gran)
+    energy_est.print_all_config()
+    energy_est.do_energy_estimation()
+    
+    helper.end_timer("energy estimation")
     
     #-------------------------------------------------------------------

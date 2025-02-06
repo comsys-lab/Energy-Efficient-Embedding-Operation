@@ -3,27 +3,26 @@
 
 ### outdir ### 
 # OUT="results_ed_r_nt_lk_nb_bs"
-# OUT="results_1mperiod"
 OUT="results_energy"
 mkdir -p $OUT
 ##############
 
 ### dataset ###
 data_path_dir="$(pwd)/datasets/"
-# dataset_list=("wikipedia/wikitext_10m.txt") # "wikipedia/20220301de.txt" "wikipedia/20220301en.txt"
-dataset_list=("wikipedia/wikitext_10m.txt") # "wikipedia/20220301de.txt" "wikipedia/20220301en.txt"
+# dataset_list=("dlrm/reuse_high_table_1M.txt" "dlrm/reuse_medium_table_1M.txt" "dlrm/reuse_low_table_1M.txt")
+dataset_list=("dlrm/day0.txt")
 ###############
 
 ### simulation parameters ###
 MEM_CFG=$1 # spad_naive
-EMB_DIM=8192
-EMB_ROW=131072
-EMB_TBL=1
-EMB_POOL=131072
+EMB_DIM=64
+EMB_ROW=40000000
+EMB_TBL=5 # 512
+EMB_POOL=1
 EMBS="$EMB_DIM,$EMB_ROW,$EMB_TBL,$EMB_POOL"
 
 NUM_BATCH=2
-BS=1
+BS=128
 ##############################
 
 ### others ###
@@ -42,7 +41,7 @@ for dataset in "${dataset_list[@]}"; do
     for e in $EMBS; do
         IFS=','; set -- $e; EMB_DIM=$1; EMB_ROW=$2; EMB_TBL=$3; EMB_LS=$4; unset IFS;
         EMB_TBL=$(python3 -c "$PyGenTbl" "$EMB_ROW" "$EMB_TBL")
-        python3 src/simulator.py --num-batches $NUM_BATCH --batch-size $BS\
+        python3 src/simulator.py --num-batches $NUM_BATCH --batch-size $BS --numeric-format-bits "8" \
             --lookups-per-sample $EMB_LS --arch-sparse-feature-size $EMB_DIM\
             --arch-embedding-size $EMB_TBL --data-generation=$DATA_GEN_PATH --memory-config=$MEM_CFG | tee $(pwd)/${OUTFILE}_${MEM_CFG}.log
     done
