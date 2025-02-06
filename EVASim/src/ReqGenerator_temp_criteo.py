@@ -207,12 +207,16 @@ class ReqGenerator_temp_criteo:
              for _ in range(len(self.lS_i[0]))] 
             for _ in range(self.nbatches)
         ]
+        print("[DEBUG] lS_i shape: {}".format(np.array(self.lS_i).shape))
         print("[DEBUG] addr_trace shape: {}".format(np.array(self.addr_trace).shape))
         
         # convert indices in self.lS_i to memory address...
         ln_emb = np.fromstring(self.embsize, dtype=int, sep="-")
-        ln_emb = np.asarray(ln_emb, dtype=np.int32)
+        ln_emb = np.asarray(ln_emb, dtype=np.int32)        
         rows_per_table = ln_emb[0]
+        
+        print("[DEBUG] ln_emb shape: {} rows_per_table: {}".format(ln_emb.shape, rows_per_table))
+        
         for nb in range(len(self.lS_i)): # recall that self.lS_i[numbatch][table][batchsz*lookuppersample]
             print("Converting vector indices into virtual memory addresses for batch {}...".format(nb))
             with tqdm(total=len(self.lS_i[nb])*len(self.lS_i[nb][0])*self.access_per_vector, desc="Processing") as pbar:
@@ -220,7 +224,7 @@ class ReqGenerator_temp_criteo:
                     for vec in range(len(self.lS_i[nb][nt])):
                         for dim in range(self.access_per_vector):
                             bytes_per_vec = (self.emb_dim * self.n_format_byte - 1).bit_length()
-                            tbl_bits = nt << int(np.log2(rows_per_table) + bytes_per_vec)                            
+                            tbl_bits = nt << int(np.log2(rows_per_table-1)+1 + bytes_per_vec)                            
                             vec_idx = self.lS_i[nb][nt][vec] << bytes_per_vec
                             dim_bits = self.mem_gran * dim
                             this_addr = tbl_bits + vec_idx + dim_bits
@@ -229,6 +233,36 @@ class ReqGenerator_temp_criteo:
                             # print(this_addr)
                         
                             pbar.update(1)
+
+    def do_batch_access_pattern_analysis(self):
+        # Convert first batch (batch 0) addresses into a list to maintain duplicates
+        first_batch_addrs = []
+        for table in self.addr_trace[0]:
+            first_batch_addrs.extend(table)
+        
+        total_addrs = len(first_batch_addrs)  # Total number of addresses including duplicates
+        first_batch_set = set(first_batch_addrs)  # Set for intersection
+        
+        print("\nBatch Access Pattern Analysis:")
+        print("--------------------------------")
+        print(f"Total addresses in each batch: {total_addrs}")
+        print("Overlap percentages with first batch (Batch 0):")
+        
+        # Compare with all batches (including batch 0)
+        for batch_idx in range(0, len(self.addr_trace)):
+            current_batch_addrs = []
+            for table in self.addr_trace[batch_idx]:
+                current_batch_addrs.extend(table)
+            
+            # Calculate overlap using sets for unique addresses
+            current_batch_set = set(current_batch_addrs)
+            overlap_addrs = first_batch_set.intersection(current_batch_set)
+            
+            # Calculate percentage based on total addresses (including duplicates)
+            overlap_count = sum(1 for addr in first_batch_addrs if addr in current_batch_set)
+            overlap_percentage = (overlap_count / total_addrs) * 100
+            
+            print(f"Batch {batch_idx}: {overlap_percentage:.2f}%")
 
 if __name__ == "__main__":
     reqgen = ReqGenerator()

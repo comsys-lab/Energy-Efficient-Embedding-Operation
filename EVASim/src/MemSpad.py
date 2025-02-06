@@ -73,10 +73,11 @@ class MemSpad:
             
             with tqdm(total=self.spad_size, desc="Setting spad") as pbar:
                 for t_i in range(self.num_tables):
+                    print("[DEBUG] t_i: {}".format(t_i))
                     for v_i in range(self.vectors_per_table):
                         for d_i in range(self.access_per_vector):
                             bytes_per_vec = (self.emb_dim * self.n_format_byte - 1).bit_length()
-                            tbl_bits = t_i << int(np.log2(self.vectors_per_table) + bytes_per_vec)
+                            tbl_bits = t_i << int(np.log2(self.vectors_per_table-1)+1 + bytes_per_vec)
                             vec_idx = v_i << bytes_per_vec
                             dim_bits = self.mem_gran * d_i
                             this_addr = tbl_bits + vec_idx + dim_bits

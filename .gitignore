@@ -19,6 +19,7 @@ EVASim/datasets/vectordb/spacev250m_train_1B.txt
 
 EVASim/results_1mperiod
 EVASim/results_Batchperiod_bormin
+EVASim/results_energy
 
 EVASim/ls_i.txt
 EVASim/results_Batchperiod0204/

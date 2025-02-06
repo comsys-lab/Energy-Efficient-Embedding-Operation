@@ -3,26 +3,26 @@
 
 ### outdir ### 
 # OUT="results_ed_r_nt_lk_nb_bs"
-OUT="results_energy"
+OUT="results_test"
 mkdir -p $OUT
 ##############
 
 ### dataset ###
 data_path_dir="$(pwd)/datasets/"
 # dataset_list=("dlrm/reuse_high_table_1M.txt" "dlrm/reuse_medium_table_1M.txt" "dlrm/reuse_low_table_1M.txt")
-dataset_list=("dlrm/day0.txt")
+dataset_list=("dlrm/day_5.txt")
 ###############
 
 ### simulation parameters ###
 MEM_CFG=$1 # spad_naive
-EMB_DIM=64
+EMB_DIM=256
 EMB_ROW=40000000
 EMB_TBL=5 # 512
 EMB_POOL=1
 EMBS="$EMB_DIM,$EMB_ROW,$EMB_TBL,$EMB_POOL"
 
-NUM_BATCH=2
-BS=128
+NUM_BATCH=1500
+BS=2048
 ##############################
 
 ### others ###

@@ -23,7 +23,7 @@ EMB_POOL=170
 EMBS="$EMB_DIM,$EMB_ROW,$EMB_TBL,$EMB_POOL"
 
 NUM_BATCH=2
-BS=128
+BS=32
 ##############################
 
 ### others ###
