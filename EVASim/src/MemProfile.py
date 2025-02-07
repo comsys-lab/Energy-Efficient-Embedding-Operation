@@ -248,14 +248,14 @@ class MemProfile:
         
         # print("[DEBUG] print the nb, nt, vec of self.emb_dataset {} {} {}".format(len(self.emb_dataset), len(self.emb_dataset[0]), len(self.emb_dataset[0][0])))
         
-        for nb in range(len(self.emb_dataset)):
+        for jj in range(len(self.emb_dataset)):
             num_hit = 0
             num_miss = 0
             num_spad_load = 0
             logger_hit = 0
             logger_miss = 0
             
-            # nb=0 #DEBUG
+            nb=0 #DEBUG
             
             print("Simulation for batch {}...".format(nb))
             vectors_in_batch = list(chain.from_iterable(self.emb_dataset[nb]))
@@ -306,11 +306,13 @@ class MemProfile:
         
         print("[DEBUG] dynamic_counter_threshold: {}".format(dynamic_counter_threshold))
         
-        for nb in range(len(self.emb_dataset)):
+        for jj in range(len(self.emb_dataset)):
             num_hit = 0
             num_miss = 0
             num_spad_load = 0
-            # nb=0 #DEBUG
+            
+            nb=1 #DEBUG
+            
             print("Simulation for batch {}...".format(nb))
             with tqdm(total=len(self.index_trace[0]) * len(self.index_trace[0][0]), desc=f"Batch {nb}") as pbar:
                 for nt in range(len(self.emb_dataset[nb])):

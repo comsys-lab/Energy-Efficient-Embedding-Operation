@@ -16,7 +16,7 @@ bsz=1
 mem_gran=128
 n_format_byte=4
 on_mem_access=36325
-off_mem_access=7463675
+off_mem_access=876778
 
 # ### required params ###
 # workload_type="dlrm"

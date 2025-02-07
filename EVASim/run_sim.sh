@@ -17,12 +17,12 @@ dataset_list=("dlrm/reuse_high_table_1M.txt")
 MEM_CFG=$1 # spad_naive
 EMB_DIM=256
 EMB_ROW=1000000
-EMB_TBL=5 # 512
+EMB_TBL=512 # 512
 EMB_POOL=170
 EMBS="$EMB_DIM,$EMB_ROW,$EMB_TBL,$EMB_POOL"
 
 NUM_BATCH=2
-BS=32
+BS=128
 ##############################
 
 ### others ###

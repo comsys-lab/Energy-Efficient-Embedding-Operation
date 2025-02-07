@@ -25,6 +25,8 @@ EVASim/ls_i.txt
 EVASim/results_Batchperiod0204/
 EVASim/run_only_energy.sh
 EVASim/run_sim_test_EOT.sh
+EVASim/run_sim_32.sh
+EVASim/run_sim_32_high.sh
 
 # rep_figures
 

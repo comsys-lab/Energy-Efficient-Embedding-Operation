@@ -11,11 +11,12 @@
 ║ Lookups per sample: 131072                                                                         ║
 ║ Embedding Dimension 8192                                                                           ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-(Time elapsed(s) in model and data gen:   0.957960sec)
+(Time elapsed(s) in model and data gen:   0.970930sec)
+[DEBUG] lS_i shape: (2, 1, 131072)
 [DEBUG] addr_trace shape: (2, 1, 8388608)
 Converting vector indices into virtual memory addresses for batch 0...
 Converting vector indices into virtual memory addresses for batch 1...
-(Time elapsed(s) in address generation:  25.337512sec)
+(Time elapsed(s) in address generation:  26.944076sec)
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 On-Chip Memory Configuration 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
@@ -27,14 +28,20 @@ Converting vector indices into virtual memory addresses for batch 1...
 [DEBUG] logger can contain 16384 vectors
 [DEBUG] logger is empty. Set the spad with the naive method.
 on mem data structure size: 8192.11 KB
-(Time elapsed(s) in create memory structure:   1.383700sec)
+(Time elapsed(s) in create memory structure:   1.469890sec)
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 Simulation Start 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
 [DEBUG] dynamic_counter_threshold: 8388608
 Simulation for batch 0...
-Simulation for batch 1...
+[DEBUG] logger is not empty. Set the spad with the logger entries.
+[DEBUG] on_mem_set type: <class 'numpy.ndarray'>, shape: (1048576,), dtype: int64
+[DEBUG] on_mem_set[0]: 78380928, on_mem_set[-1]: 410222592
+Simulation for batch 0...
+[DEBUG] logger is not empty. Set the spad with the logger entries.
+[DEBUG] on_mem_set type: <class 'numpy.ndarray'>, shape: (1048576,), dtype: int64
+[DEBUG] on_mem_set[0]: 78380928, on_mem_set[-1]: 410222592
 Simulation Done
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -53,7 +60,7 @@ Simulation Done
 ║ [Batch 1] spad load: 1048576                                                                       ║
 ║ [Batch 1] logger hit ratio: 0.9227 accesses: 8388608 hits: 7740032 misses: 648576                  ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-(Time elapsed(s) in do simulation: 6032.477502sec)
+(Time elapsed(s) in do simulation: 7226.985173sec)
 [DEBUG] workload_type: wikipedia
 
 
@@ -63,35 +70,6 @@ Simulation Done
 Setting parameters for energy estimation...
 Setting workload configuration...
 Setting energy table configuration...
-
-============= Configuration Summary =============
-
-[Workload Configuration]
-Workload Type: wikipedia
-Number of Operation Types: 0
-
-[Operation Details]
-
-[Energy Table Configuration]
-Technology Node: 45nm
-
-Memory Access Energy (pJ/byte):
-- Off-chip Memory: 43.750
-- Global Buffer: 3.690
-- Local Buffer: 1.250
-
-Computation Energy (pJ):
-INT8 Operations:
-- Addition: 0.030
-- Multiplication: 0.200
-- Compare: 0.030
-
-FP32 Operations:
-- Addition: 0.900
-- Multiplication: 3.700
-- Compare: 0.900
-=============================================
-
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒《 Energy Estimation Results 》▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒║
@@ -117,4 +95,4 @@ FP32 Operations:
 ║     On-chip Memory Energy: 3928795545.600 pJ                                                       ║
 ║     Operations Energy:                                                                             ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
-(Time elapsed(s) in energy estimation:   0.002698sec)
+(Time elapsed(s) in energy estimation:   0.002633sec)
